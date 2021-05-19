@@ -13,3 +13,6 @@
 [submodule "Models/IRL"]
 	path = Models/IRL
 	url = https://github.com/cvlab-stonybrook/Scanpath_Prediction.git
+[submodule "Models/Eymol"]
+	path = Models/Eymol
+	url = https://github.com/dariozanca/G-Eymol.git
