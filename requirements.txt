@@ -1,0 +1,8 @@
+numpy
+requests
+scipy
+Pillow
+fastdtw
+editdistance
+wget
+imageio
