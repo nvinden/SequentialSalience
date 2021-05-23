@@ -258,8 +258,8 @@ class SaliencyDataset(object):
 
 			elif data_type =='stimuli':
 				path = os.path.join(self.directory, img['stimuli'])
+				print(path)
 				if os.path.isfile(path):
-					print("HERE")
 					tmp = imread(path)
 					if tmp.ndim != 3:
 						shape = tmp.shape
