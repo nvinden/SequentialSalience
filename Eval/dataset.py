@@ -257,9 +257,9 @@ class SaliencyDataset(object):
 				tmp = os.path.join(self.directory, img['heatmap'])
 
 			elif data_type =='stimuli':
-				print("FOUND STIMULI")
 				path = os.path.join(self.directory, img['stimuli'])
 				if os.path.isfile(path):
+					print("HERE")
 					tmp = imread(path)
 					if tmp.ndim != 3:
 						shape = tmp.shape
