@@ -59,7 +59,7 @@ def save_json(results, test, index, P, Q, pic_path, pic_shape, model_name):
   #pic path: path to the pic used.
   #model_name: what model was used to achieve these results
   out = {}
-  path = os.path.join(results_folder, model_name, str(1000 + index) + ".json")
+  path = os.path.join(results_folder, model_name, test + str(1000 + index) + ".json")
   out["best_score"] = results.min(axis=0).tolist()
   out["all_scores"] = results.tolist()
   out["metrics"] = metrics
@@ -72,6 +72,7 @@ def save_json(results, test, index, P, Q, pic_path, pic_shape, model_name):
   out["len_predicted"] = predicted.shape[0]
   out["len_actual"] = actual.shape[0]
   out["image_size"] = pic_shape
+  out["picture_path"] = pic_path
   out["p_bubbles"] = _create_close_values(predicted).tolist()
   out["q_bubbles"] = _create_close_values(actual).tolist()
 
@@ -84,7 +85,7 @@ def save_json(results, test, index, P, Q, pic_path, pic_shape, model_name):
 
 def test_eymol():
   #testing on OSIE, SALICON
-  tests = ["OSIE", "SUN09"]
+  tests = ["SUN09", ]
   dataset = ds.SaliencyDataset(config=CONFIG)
   for test in tests:
     i = 0
@@ -94,7 +95,7 @@ def test_eymol():
     pictures_path = dataset.get('stimuli_path')
 
     #result arrays for metric results, P's and Q's in total
-    results = np.empty((0, len(tests)), dtype=np.float64)
+    results = np.empty((0, len(metrics)), dtype=np.float64)
     P = []
     Q = []
 
@@ -110,7 +111,12 @@ def test_eymol():
         out = run_diagnostics(P_curr, Q_curr, metrics)
 
         #concatenating results to result matix
-        results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
+        if test == "OSIE":
+          results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
+        elif test == "SUN09":
+          out = np.array(out, dtype=np.float64)
+          out = np.expand_dims(out, axis=0)
+          results = np.concatenate((results, out), axis=0)
         P.append(P_curr)
         Q.append(Q_curr)
 
