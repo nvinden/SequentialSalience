@@ -677,5 +677,10 @@ def fixation_detection(x, y, time, maxdist=25, mindur=50):
     return Sfix, Efix
 
 def get_fixations(eye_positions):
-    return np.array(fixation_detection(eye_positions[:, 1], eye_positions[:, 0], eye_positions[:, 2] * 1000.)[1])[:, (3, 4, 0, 1)]
+    detect = fixation_detection(eye_positions[:, 1], eye_positions[:, 0], eye_positions[:, 2] * 1000.)
+    detect = np.array(detect[1])[:, (3, 4, 0, 1)]
+    if len(detect.shape) == 1:
+        detect = np.expand_dims(detect, axis=0)
+    return detect
+
 

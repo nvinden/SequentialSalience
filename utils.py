@@ -88,38 +88,41 @@ def test_eymol():
   tests = ["SUN09", ]
   dataset = ds.SaliencyDataset(config=CONFIG)
   for test in tests:
-    i = 0
-    dataset.load(test)
-    fixations = dataset.get('sequence')
-    pictures = dataset.get('stimuli')
-    pictures_path = dataset.get('stimuli_path')
+      i = 0
+      dataset.load(test)
+      fixations = dataset.get('sequence')
+      pictures = dataset.get('stimuli')
+      pictures_path = dataset.get('stimuli_path')
 
-    #result arrays for metric results, P's and Q's in total
-    results = np.empty((0, len(metrics)), dtype=np.float64)
-    P = []
-    Q = []
+      #result arrays for metric results, P's and Q's in total
+      results = np.empty((0, len(metrics)), dtype=np.float64)
+      P = []
+      Q = []
 
-    for fix_batch, samp_pic, samp_pic_path in zip(fixations, pictures, pictures_path):
-      i += 1
-      for fix1 in fix_batch:
-        gaze_positions = eymol.compute_simulated_scanpath(samp_pic, seconds=5)
-        fix2 = eymol.get_fixations(gaze_positions)
+      for fix_batch, samp_pic, samp_pic_path in zip(fixations, pictures, pictures_path):
+        try:
+          i += 1
+          for fix1 in fix_batch:
+            gaze_positions = eymol.compute_simulated_scanpath(samp_pic, seconds=5)
+            fix2 = eymol.get_fixations(gaze_positions)
 
-        P_curr = fix1[:, 0:2]
-        Q_curr = fix2[:, 0:2]
+            P_curr = fix1[:, 0:2]
+            Q_curr = fix2[:, 0:2]
 
-        out = run_diagnostics(P_curr, Q_curr, metrics)
+            out = run_diagnostics(P_curr, Q_curr, metrics)
 
-        #concatenating results to result matix
-        if test == "OSIE":
-          results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
-        elif test == "SUN09":
-          out = np.array(out, dtype=np.float64)
-          out = np.expand_dims(out, axis=0)
-          results = np.concatenate((results, out), axis=0)
-        P.append(P_curr)
-        Q.append(Q_curr)
+            #concatenating results to result matix
+            if test == "OSIE":
+              results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
+            elif test == "SUN09":
+              out = np.array(out, dtype=np.float64)
+              out = np.expand_dims(out, axis=0)
+              results = np.concatenate((results, out), axis=0)
+            P.append(P_curr)
+            Q.append(Q_curr)
 
-      print(f"Run number: {i}")
-      save_json(results, test, i, P, Q, samp_pic_path, samp_pic.shape, "Eymol")
+          print(f"Run number: {i}")
+          save_json(results, test, i, P, Q, samp_pic_path, samp_pic.shape, "Eymol")
+        except:
+          print("Failed...")
     
