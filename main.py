@@ -2,8 +2,8 @@ import utils
 
 import os
 
-import Metrics.dataset as ds
-import Metrics.metrics.metrics as met
+import Eval.dataset as ds
+import Eval.metrics.metrics as met
 
 from Models import *
 from Models.Eymol import eymol
