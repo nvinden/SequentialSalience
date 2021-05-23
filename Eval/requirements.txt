@@ -1,8 +1,8 @@
 numpy
 requests
-scipy
+scipy==1.1.0
 Pillow
 fastdtw
 editdistance
 wget
-imageio==1.1.0
+imageio
