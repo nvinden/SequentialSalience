@@ -1,5 +1,6 @@
 Datasets
 Results
 
-Models/Eymol/__pycache__
-Models/IOR-ROI/__pycache__
+Models/Eymol/__pycache__/*
+Models/IOR-ROI/__pycache__/*
+
