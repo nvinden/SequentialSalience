@@ -85,6 +85,8 @@ def generator(n_hidden_gen=None, lstm_activation=None, dropout=None, optimizer=N
     # Compile
     generator.compile(loss=loss, optimizer=optimizer, sample_weight_mode='temporal', metrics=['mae'], loss_weights=loss_weights)
 
+    print(f"WEIGHTS: {weights}")
+
     # Load weights
     if weights != "-":
         print("Loading generator weights")
