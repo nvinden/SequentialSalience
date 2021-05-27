@@ -67,7 +67,7 @@ def generator(n_hidden_gen=None, lstm_activation=None, dropout=None, optimizer=N
     vgg = VGG16(weights='imagenet', include_top=False, input_tensor=main_input)
     vgg.trainable=False
 
-    #generator.add(vgg)
+    generator.add(vgg)
     generator.add(BatchNormalization())
     generator.add(Flatten())
     generator.add(Dense(n_hidden_gen, activation='linear'))
