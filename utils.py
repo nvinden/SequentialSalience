@@ -282,7 +282,7 @@ def test_saltinet():
   
 def create_pathgan_csv():
   pathgan_dataset_route = "Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/Stimuli"
-  pathgan_results_route = "Results/PathGAN/"
+  pathgan_results_route = "Results/PathGAN_csv/"
 
   p_predict.predict_and_save(pathgan_dataset_route, pathgan_results_route)
 
