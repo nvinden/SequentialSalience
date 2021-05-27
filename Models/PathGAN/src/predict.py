@@ -1,10 +1,10 @@
-import models
+from . import models
 from keras.models import *
 from keras.optimizers import SGD, RMSprop
 from keras.layers import *
 from keras.applications.vgg16 import VGG16
 from time import gmtime, strftime
-from keras.utils.training_utils import multi_gpu_model
+#from keras.utils.training_utils import multi_gpu_model
 import keras
 import h5py
 import numpy as np
@@ -12,7 +12,7 @@ import scipy.io as io
 import tensorflow as tf
 import argparse
 import os
-import utils
+from . import utils
 
 def accumulate_times(times):
     new_times = np.copy(times)
@@ -51,6 +51,58 @@ def prepare_image(scanpaths):
     return a
 
 def predict(img_path):
+    # example pathgan.predict('/root/sharedfolder/Images/P1.jpg')
+
+    loss_weights            = [1., 0.05] #0.05
+    adversarial_iteration   = 2
+    batch_size              = 40 #100
+    mini_batch_size         = 800 #4000
+    G                       = 1
+    epochs                  = 200
+    n_hidden_gen            = 1000
+    lr                      = 1e-4
+    content_loss            = 'mse'
+    lstm_activation         = 'tanh'
+    dropout                 = 0.1
+    dataset_path            = '/root/sharedfolder/predict_scanpaths/finetune_saltinet_isun/input/salient360_EVAL_noTime.hdf5'
+    model360                = 'true'
+    weights_generator       = 'Models/PathGAN/weights/generator_single_weights.h5'
+    opt = RMSprop(lr=lr, rho=0.9, epsilon=1e-08, decay=0.0)
+
+
+    # Load image 
+    img, img_size = utils.load_image(img_path, '360')
+    
+    # Get the model
+    params = {
+        'n_hidden_gen':n_hidden_gen,
+        'lstm_activation':lstm_activation,
+        'dropout':dropout,
+        'optimizer':opt,
+        'loss':content_loss,
+        'weights':weights_generator,
+        'G':G
+    }
+    _, generator_parallel = models.generator(**params)
+
+    # Predict with a model
+    n_sp_per_image = 1 
+
+    #provisional
+    output = np.zeros((n_sp_per_image, 63, 4 ))
+    for i in range(n_sp_per_image):
+        print("Calculating observer %d" % i)
+        noise  = np.random.normal(0,3,img.shape)
+        noisy_img = img + noise
+        prediction = generator_parallel.predict(noisy_img)
+        output[i] = prediction
+
+    # Prepare the predictions for matlab and save it on individual files
+    output = prepare_image(output[:,:,:])
+
+    return output
+
+def predict_from_numpy(input):
     # example pathgan.predict('/root/sharedfolder/Images/P1.jpg')
 
     loss_weights            = [1., 0.05] #0.05

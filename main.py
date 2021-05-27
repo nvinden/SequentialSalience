@@ -13,7 +13,8 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    utils.test_eymol()
+    #utils.create_saltinet_csv()
+    utils.create_pathgan_csv()
 
 if __name__ == '__main__':
     main()

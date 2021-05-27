@@ -54,7 +54,6 @@ def training_output(mini_batch_size):
 
                                                             
 def save_history(G, history, encoder_loss, encoder_acc, encoder_loss_mse, encoder_mae):
-    print history
 
     if G > 1 : 
         encoder_loss.append(history['concatenate_5_loss'][0])

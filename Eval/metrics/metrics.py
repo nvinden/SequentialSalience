@@ -439,6 +439,7 @@ def eyenalysis(P, Q, **kwargs):
 
 	P = np.array(P, dtype=np.float32)
 	Q = np.array(Q, dtype=np.float32)
+
 	dist = np.zeros((P.shape[0], Q.shape[0]))
 
 	for idx_1, fix_1 in np.ndenumerate(P):
