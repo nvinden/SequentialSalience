@@ -116,6 +116,8 @@ def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape,
   if not os.path.exists(os.path.join(results_folder, model_name)):
     os.makedirs(os.path.join(results_folder, model_name))
 
+  #added comment
+
   with open(path, 'w') as f:
     json.dump(out, f)
 
