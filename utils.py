@@ -8,8 +8,10 @@ import Eval.metrics.metrics as met
 from Models import *
 from Models.Eymol import eymol
 
+'''
 from Models.IRL.irl_dcb import config, builder, trainer, utils
 from Models.IRL import dataset
+'''
 
 import Models.SaltiNet.src as SaltiNet
 import Models.SaltiNet.src.utils as s_utils
@@ -276,6 +278,7 @@ def test_eymol(seq, stim, stim_names, dataset):
     save_json(results, test, i, P_curr, actual_list, samp_pic_path.split("/")[-1].split(".")[0], samp_pic.shape, "Eymol")
     #except:
       #print("Fail")
+      #dont maintain this
 
 def _get_IRL_generator():
   if torch.cuda.is_available():
