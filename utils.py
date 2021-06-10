@@ -15,11 +15,9 @@ from Models.IRL import dataset
 import Models.SaltiNet.src as SaltiNet
 import Models.SaltiNet.src.utils as s_utils
 import Models.SaltiNet.src.pathnet as s_pathnet
-'''
 
 import Models.PathGAN.src.predict as p_predict
 
-'''
 import Models.IttiKoch.pySaliencyMap as ik
 '''
 
