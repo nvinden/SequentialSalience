@@ -14,7 +14,7 @@ import argparse
 import cv2
 import os
 
-debug = True
+debug = False
 alpha_content_loss = 0.05
 global_epoch_number = 0
 
@@ -56,7 +56,7 @@ def _create_seq_input_gen(gen, stim_batch):
 def train(seq, stim, stim_names, dataset):
     loss_weights            = [1., 0.05] #0.05
     adversarial_iteration   = 2
-    batch_size              = 40 #100
+    batch_size              = 100 #100
     mini_batch_size         = 800 #4000
     G                       = 1
     epochs                  = 200
@@ -177,6 +177,8 @@ def train(seq, stim, stim_names, dataset):
     
     dec.save_weights(dec_save_path)
     gen.save_weights(gen_save_path)
+
+    print(f"Epoch {epoch} complete...")
 
     print(gen.summary())
     print(dec.summary())
