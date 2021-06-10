@@ -258,6 +258,8 @@ class SaliencyDataset(object):
 
 			elif data_type =='stimuli':
 				path = os.path.join(self.directory, img['stimuli'])
+				if self.name == "MIT1003":
+					path = path.replace("/images/", "/ALLSTIMULI/")
 				if os.path.isfile(path):
 					tmp = imread(path)
 					if tmp.ndim != 3:

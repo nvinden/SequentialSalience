@@ -52,7 +52,6 @@ def prepare_image(scanpaths):
 
 def predict(img_path):
     # example pathgan.predict('/root/sharedfolder/Images/P1.jpg')
-
     loss_weights            = [1., 0.05] #0.05
     adversarial_iteration   = 2
     batch_size              = 40 #100

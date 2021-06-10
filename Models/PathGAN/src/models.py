@@ -9,6 +9,7 @@ import numpy as np
 import scipy.io as io
 import tensorflow as tf
 import argparse
+from . import train
 
 def decoder(lstm_activation=None, optimizer=None, weights=None):
     print("Setting up decoder")
@@ -55,9 +56,6 @@ def decoder(lstm_activation=None, optimizer=None, weights=None):
 
     return decoder
 
-
-
-
 def generator(n_hidden_gen=None, lstm_activation=None, dropout=None, optimizer=None, loss=None, weights=None, G=None, loss_weights=None):
     # Encoder -------------------------------------------
     print("Setting up generator")
@@ -83,7 +81,7 @@ def generator(n_hidden_gen=None, lstm_activation=None, dropout=None, optimizer=N
     generator.add(Dense(4, activation='sigmoid'))
     
     # Compile
-    generator.compile(loss=loss, optimizer=optimizer, sample_weight_mode='temporal', metrics=['mae'], loss_weights=loss_weights)
+    generator.compile(loss="mse", optimizer=optimizer, sample_weight_mode='temporal', metrics=['mae'], loss_weights=loss_weights)
 
     # Load weights
     if weights != "-":
@@ -109,7 +107,7 @@ def gen_dec(content_loss=None, optimizer=None, loss_weights=None, generator=None
     x = generator(generator_input)
 
     decoder.name = 'discriminator'
-    decoder.trainable=False
+    decoder.trainable = False
 
     output = decoder([x, dec_img_input])
 

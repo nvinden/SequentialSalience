@@ -17,9 +17,15 @@ import Models.SaltiNet.src.pathnet as s_pathnet
 
 import Models.PathGAN.src.predict as p_predict
 
+import Models.IttiKoch.pySaliencyMap as ik
+
 import numpy as np
+import cv2
+from PIL import Image
 
 import json
+import csv
+import math
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -34,7 +40,9 @@ metrics = ["eyenalysis", "DTW"]
 
 results_folder = "Results"
 
-def run_diagnostics(val1, val2, metrics):
+fixation_cutoff = 12
+
+def run_diagnostics(val1, val2):
   #returns tuple of values in the same format
   #as inputted witht the results of the tests ran
   out = []
@@ -57,7 +65,7 @@ def _create_close_values(M, distances=[5, 10, 25, 50, 100, 200, 500]):
           out[dist_idx] += 1
   return out
         
-def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape, model_name):
+def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape, model_name, best_2_best_15=None, first_2_best_100=None, best_2_best_100=None):
   #results: (float64 2d matrix) numpy matrix size 15xnumber_of_tests with results to each of the tests
   #test: (string) which dataset used
   #index: (int) number used to identify which image it is in the dataset
@@ -67,7 +75,13 @@ def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape,
   #pic path: path to the pic used.
   #model_name: what model was used to achieve these results
   out = {}
-  path = os.path.join(results_folder, model_name, test + "_" + pic_name + ".json")
+
+  #creating pathname for the json file
+  if model_name == "IttiKoch":
+    path = os.path.join(results_folder, model_name, test + "_"  + str(predicted.shape[0]) + "_" + pic_name + ".json")
+  else:
+    path = os.path.join(results_folder, model_name, test + "_" + pic_name + ".json")
+  
   out["best_score"] = results.min(axis=0).tolist()
   out["all_scores"] = results.tolist()
   out["metrics"] = metrics
@@ -75,7 +89,11 @@ def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape,
   min_idx = np.argmin(results, axis = 0)
   actual = []
   for val in min_idx:
-    actual.append(actual_list[val].tolist())
+    curr = actual_list[val]
+    if curr.shape[1] == 5:
+      curr = curr[:, 0:2]
+      curr = curr[:, [1,0]]
+    actual.append(curr.tolist())
   out["predicted"] = predicted.tolist()
   out["actual"] = actual
   out["len_predicted"] = predicted.shape[0]
@@ -86,51 +104,176 @@ def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape,
   out["image_size"] = pic_shape
   out["picture_name"] = pic_name
 
+  if best_2_best_15 is not None:
+    out["best_2_best_15"] = best_2_best_15.tolist()
+
+  if first_2_best_100 is not None:
+    out["first_2_best_100"] = first_2_best_100.tolist()
+
+  if best_2_best_100 is not None:
+    out["best_2_best_100"] = best_2_best_100.tolist()
+
   if not os.path.exists(os.path.join(results_folder, model_name)):
     os.makedirs(os.path.join(results_folder, model_name))
 
   with open(path, 'w') as f:
     json.dump(out, f)
 
+def fix_to_json(pred, real_list, image = None, dataset = None, name = None, directory = None, to_image = False):
+  #pred: length x 2 dimension predicted fixations
+  #real_list: list of length x 5 or 2 dimension real fixation
+  #image: numpy image
+  #name: name of the file
+  results = []
+  for real in real_list:
+    if dataset in ["OSIE", "SUN09", "LOWRES", "KTH"]:
+      real = real[:, 0:2]
+      real = real[:, [1,0]]
 
-def test_eymol():
-  #testing on OSIE, SALICON
-  tests = ["SUN09", ]
-  dataset = ds.SaliencyDataset(config=CONFIG)
-  for test in tests:
-      i = 0
-      dataset.load(test)
-      fixations = dataset.get('sequence')
-      pictures = dataset.get('stimuli')
-      pictures_path = dataset.get('stimuli_path')
+    if to_image == True:
+      print("NICK NEEDS TO IMPLEMENT THIS LATER")
 
-      for fix_batch, samp_pic, samp_pic_path in zip(fixations, pictures, pictures_path):
-        try:
-          #result arrays for metric results, P's and Q's in total
-          results = np.empty((0, len(metrics)), dtype=np.float64)
-          actual_list = []
-          i += 1
-          gaze_positions = eymol.compute_simulated_scanpath(samp_pic, seconds=5)
-          fix2 = eymol.get_fixations(gaze_positions)
-          P_curr = fix2[:, 0:2]
-          for fix1 in fix_batch:
-            Q_curr = fix1[:, 0:2]
+    if real.shape[0] == 1 or pred.shape[0] == 1:
+      continue
 
-            out = run_diagnostics(P_curr, Q_curr, metrics)
+    try:
+      curr_result = run_diagnostics(pred, real)
+      results.append(curr_result)
+    except:
+      print("fix_to_json failure")
+    
+  save_json(np.array(results), dataset, 0, pred, real_list, name.split("/")[-1].split(".")[0], image.shape, directory)
 
-            #concatenating results to result matix
-            if test == "OSIE":
-              results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
-            elif test == "SUN09":
-              out = np.array(out, dtype=np.float64)
-              out = np.expand_dims(out, axis=0)
-              results = np.concatenate((results, out), axis=0)
-            actual_list.append(Q_curr)
+def create_csv_from_JSON_directory(directory, name):
+  csv_dir = "Results/csv"
+  with open(os.path.join(csv_dir, name + ".csv"), 'w', newline='') as csvfile:
+    write = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    write.writerow(["EyeAnalysis", "DTW", "Dataset", "len_predicted", "len_actual_Eye", "len_actual_DTW", "width", "height", "best_2_best_15", "first_2_best_100", "best_2_best_100"])
+    for filename in os.listdir(directory):
+      full_path = os.path.join(directory, filename)
+      with open(full_path) as f:
+        curr = json.load(f)
+      EyeAnaylsis = curr["best_score"][0]
+      DTW = curr["best_score"][1]
+      Dataset = curr["dataset"]
+      len_predicted = curr["len_predicted"]
+      len_actual_Eye = curr["len_actual"][0]
+      len_actual_DTW = curr["len_actual"][1]
 
-          print(f"Run number: {i}")
-          save_json(results, test, i, P_curr, actual_list, samp_pic_path.split("/")[-1], samp_pic.shape, "Eymol")
-        except:
-          print("Fail")
+      #for 360 salient
+      if curr["image_size"] == "Not shown":
+        width = "n/a"
+        height = "n/a"
+      else:
+        width = curr["image_size"][0]
+        height = curr["image_size"][1]
+
+      if "best_2_best_15" in curr.keys():
+        print(curr["best_2_best_15"])
+        best_2_best_15 = curr["best_2_best_15"][0][1]
+      else:
+        best_2_best_15 = "n/a"
+
+      if "first_2_best_100" in curr.keys():
+        first_2_best_100 = curr["first_2_best_100"][0][1]
+      else:
+        first_2_best_100 = "n/a"
+
+      if "best_2_best_100" in curr.keys():
+        best_2_best_100 = curr["best_2_best_100"][0][1]
+      else:
+        best_2_best_100 = "n/a"
+      
+      write.writerow([EyeAnaylsis, DTW, Dataset, len_predicted, len_actual_Eye, len_actual_DTW, width, height, best_2_best_15, first_2_best_100, best_2_best_100])
+    
+def create_size_and_length_compare_csv(directory, name):
+  #creates a csv file containing info about the DTW and
+  #after morphing images size and gazepath length to see how they
+  #effect the DTW and Eyeanalysis scores
+  #directory: directory that contains the JSONs to load
+  #name: Name of the out file saved in your Results csv folder
+  np.set_printoptions(suppress=True) 
+
+  csvfile = os.path.join("Results/csv", name + ".csv")
+
+  with open(csvfile, 'w', newline='') as f:
+    write = csv.writer(f, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    write.writerow(["Filename", "EyeAnalysis", "DTW", "image_height", "image_width", "image_area", "len_actual", "len_predicted", "total_length"])
+
+    for filename in os.listdir(directory):
+      path = os.path.join(directory, filename)
+      with open(path) as f:
+          curr = json.load(f)
+      image_size = curr['image_size']
+      pred = np.array(curr['predicted'], dtype=np.float64)[:,3:5]
+      pred = pred[:,[1,0]]
+      pred[:,0] = pred[:,0] / image_size[1]
+      pred[:,1] = pred[:,1] / image_size[0]
+
+      actu = np.array(curr['actual'][1], dtype=np.float64)[:,1:3]
+
+      for i in range(1, 41):
+        scaling_factor_height = i / 20
+        scaling_factor_width = i / 20
+
+        for j in range(1, 5):
+          length_scaling_factor_pred = math.ceil(j / 4 * pred.shape[0])
+          length_scaling_factor_actu = math.ceil(j / 4 * actu.shape[0])
+
+          pred_used = np.copy(pred[0:length_scaling_factor_pred,:])
+          actu_used = np.copy(actu[0:length_scaling_factor_actu,:])
+
+          pred_used[:,0] = pred_used[:,0] * scaling_factor_height * image_size[1]
+          pred_used[:,1] = pred_used[:,1] * scaling_factor_width * image_size[0]
+
+          actu_used[:,0] = actu_used[:,0] * scaling_factor_height * image_size[1]
+          actu_used[:,1] = actu_used[:,1] * scaling_factor_width * image_size[0]
+
+          if pred_used.shape[0] != 1 and actu_used.shape[0]:
+            try:
+              result = run_diagnostics(pred_used, actu_used)
+              write.writerow([filename, result[0], result[1], scaling_factor_height * image_size[1], scaling_factor_width * image_size[0], scaling_factor_height * image_size[1] * scaling_factor_width * image_size[0], actu_used.shape[0], pred_used.shape[0], actu_used.shape[0]+ pred_used.shape[0]])
+            except:
+              print("Failure")
+              print(pred_used)
+              print(actu_used)
+
+
+
+def test_eymol(seq, stim, stim_names, dataset):
+  i = 0
+  fixations = seq
+  pictures = stim
+  pictures_path = stim_names
+  test = dataset
+
+  for fix_batch, samp_pic, samp_pic_path in zip(fixations, pictures, pictures_path):
+    #try:
+    #result arrays for metric results, P's and Q's in total
+    results = np.empty((0, len(metrics)), dtype=np.float64)
+    actual_list = []
+    i += 1
+    gaze_positions = eymol.compute_simulated_scanpath(samp_pic, seconds=5)
+    fix2 = eymol.get_fixations(gaze_positions)
+    P_curr = fix2[:, 0:2]
+    for fix1 in fix_batch:
+      Q_curr = fix1[:, 0:2]
+
+      out = run_diagnostics(P_curr, Q_curr)
+
+      #concatenating results to result matix
+      if test in ["KTH", "OSIE", "LOWRES"]:
+        results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
+      elif test == "SUN09":
+        out = np.array(out, dtype=np.float64)
+        out = np.expand_dims(out, axis=0)
+        results = np.concatenate((results, out), axis=0)
+      actual_list.append(Q_curr)
+
+    print(f"Run number: {i}")
+    save_json(results, test, i, P_curr, actual_list, samp_pic_path.split("/")[-1].split(".")[0], samp_pic.shape, "Eymol")
+    #except:
+      #print("Fail")
 
 def _get_IRL_generator():
   if torch.cuda.is_available():
@@ -222,6 +365,7 @@ def test_IRL():
     number_of_paths = 0
     real_paths_list = []
 
+
     for real_image in real_scanpaths:
       if real_image['name'] == image_name:
         number_of_paths += 1
@@ -273,16 +417,149 @@ def create_saltinet_csv():
   
   s_pathnet.predict_and_save(saltinet_dataset_route)
 
-def test_saltinet():
-  saltinet_csv_dir = "Results/SaltiNet_csv"
-  saltinet_image_dir = "Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/Stimuli"
+def _get_best_from_fixation(pred, real_list, shape, range_of_fixations):
+  best_results = np.full((len(metrics)), np.inf)
+  for i, real_ind in enumerate(real_list):
+    real = np.copy(real_ind)
 
-  for csv_name in os.listdir(saltinet_csv_dir):
-    pass
+    if i + 1 >= range_of_fixations:
+      break
+    #creating entry for real fixations (note shape is flipped because widthxheight needs to
+    # translate into longxlat)
+    real_fix = real[:,1:3]
+    real_fix[:,0] = real_fix[:,0] * shape[1]
+    real_fix[:,1] = real_fix[:,1] * shape[0]
+
+    #creating entry for predicted fixations
+    pred_fix = pred[:,3:5]
+    pred_fix = pred_fix[:,[1,0]]
+
+    try:
+      results = run_diagnostics(real_fix, pred_fix)
+
+      for result_idx in range(len(best_results)):
+        if best_results[result_idx] > results[result_idx]:
+          best_results[result_idx] = results[result_idx]
+    except:
+      continue
+    
+  return np.array(best_results, dtype=np.float64)
+
+def test_saltinet():
+  np.set_printoptions(suppress=True) 
+  saltinet_pred_dir = "Results/SaltiNet_csv"
+  saltinet_real_dir = "Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/H/Scanpaths"
+
+  for csv_int, csv_name in enumerate(os.listdir(saltinet_pred_dir)):
+    best_2_best_15 = np.empty((0, len(metrics)), dtype=np.float64)
+    first_2_best_15 = np.empty((0, len(metrics)), dtype=np.float64)
+    first_2_best_100 = np.empty((0, len(metrics)), dtype=np.float64)
+    best_2_best_100 = np.empty((0, len(metrics)), dtype=np.float64)
+
+    csv_path = os.path.join(saltinet_pred_dir, csv_name)
+    pred = np.genfromtxt(csv_path, dtype=np.float64)
+    pred_list = np.split(pred, np.where(np.diff(pred[:,0]))[0]+1)
+
+    file_no = csv_name.split("_")[0][1:]
+    csv_path_real = os.path.join(saltinet_real_dir, "Hscanpath_" + file_no + ".txt")
+    real = np.genfromtxt(csv_path_real, delimiter=",", dtype=np.float64)
+    real = real[1:, :]
+    real_list = []
+
+    shape = csv_name.split("_")[-1].split(".")[0].split("x")
+    shape = [int(dim) for dim in shape]
+
+    for i in range(0, real.shape[0], 100):
+      real_list.append(real[i:i+fixation_cutoff,:])
+
+    #calculating data for the first predicted against the real fixations (15 and 100)
+    first_fix = pred_list[0]
+
+    first_best_15_result = _get_best_from_fixation(first_fix, real_list, shape, 15)
+    first_best_100_result = _get_best_from_fixation(first_fix, real_list, shape, 100)
+
+    first_2_best_15 = np.concatenate((first_2_best_15, np.expand_dims(first_best_15_result, axis=0)), axis=0)
+    first_2_best_100 = np.concatenate((first_2_best_100, np.expand_dims(first_best_100_result, axis=0)), axis=0)
+
+    #calculating data by comparing the best generated against the best real fixations (15 and 100)
+    best_15 = first_best_15_result
+    best_100 = first_best_100_result
+    for fix_idx, fixation in enumerate(pred_list):
+      if fix_idx == 0:
+        continue
+
+      first_best_15_result = _get_best_from_fixation(fixation, real_list, shape, 15)
+      first_best_100_result = _get_best_from_fixation(fixation, real_list, shape, 100)
+
+      if best_15[1] > first_best_15_result[1]:
+        best_15 = first_best_15_result
+      
+      if best_100[1] > first_best_100_result[1]:
+        best_100 = first_best_100_result
+    
+    best_2_best_15 = np.concatenate((best_2_best_15, np.expand_dims(best_15, axis=0)), axis=0)
+    best_2_best_100 = np.concatenate((best_2_best_100, np.expand_dims(best_100, axis=0)), axis=0)
+
+    print(first_2_best_15)
+    print(best_2_best_15)
+    print(first_2_best_100)
+    print(best_2_best_100)
+  
+    save_json(first_2_best_15, "COCOSearch-18", csv_int, first_fix, real_list[:15], csv_name, shape, "SaltiNet", first_2_best_100=first_2_best_100[0][1], best_2_best_15=best_2_best_15[0][1], best_2_best_100=best_2_best_100[0][1])
+
+
   
 def create_pathgan_csv():
   pathgan_dataset_route = "Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/Stimuli"
   pathgan_results_route = "Results/PathGAN_csv/"
 
   p_predict.predict_and_save(pathgan_dataset_route, pathgan_results_route)
+
+def _create_circle_on_image(image, loc, r):
+  start_height = int(loc[0] - r)
+  end_height = int(loc[0] + r)
+  start_width = int(loc[1] - r)
+  end_width = int(loc[1] + r)
+  for h in range(int(-r), int(r)):
+    for w in range(int(-r), int(r)):
+      try:
+        if math.sqrt(h**2 + w**2) <= r:
+          h_ind = loc[0] + h
+          w_ind = loc[1] + w
+          if h_ind > image.shape[0] or h_ind < 0 or w_ind > image.shape[1] or w_ind < 0:
+            continue
+          image[h_ind, w_ind] = 0
+      except IndexError: 
+        continue
+  return image
+
+
+def test_itti_koch(seq, stim, stim_names, dataset):
+  iteration_no = 0
+  for image, curr_seq, curr_name in zip(stim, seq, stim_names):
+    n_fix= [4,8,12]
+    max_fix = n_fix[-1]
+    pred = []
+    img_width  = image.shape[0]
+    img_height = image.shape[1]
+    sm = ik.pySaliencyMap(img_width, img_height)
+    sal_map = sm.SMGetSM(image) * 255
+
+    r = math.sqrt((0.065 * img_width * img_height)/math.pi)
+    for i in range(max_fix):
+      #finding max index of sal map
+      maxidx = sal_map.argmax()
+      maxidx = np.unravel_index(maxidx, sal_map.shape)
+
+      pred.append(maxidx)
+
+      sal_map = _create_circle_on_image(sal_map, maxidx, r)
+
+      if i + 1 == n_fix[0]:
+        fix = i + 1
+        n_fix.pop(0)
+        fix_to_json(np.array(pred), curr_seq, image = image, name = curr_name, directory = "IttiKoch", dataset = dataset)
+
+    iteration_no += 1
+    print(f"Iteration {iteration_no} for {dataset}")
 
