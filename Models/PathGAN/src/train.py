@@ -145,7 +145,7 @@ def train(seq, stim, stim_names, dataset):
 
         dec = models.decoder(lstm_activation=lstm_activation, optimizer=opt, weights="-")
         if os.path.isfile(dec_save_path):
-            gen.load_weights(dec_save_path)
+            dec.load_weights(dec_save_path)
 
         params_gan = {
             'content_loss': content_loss,
