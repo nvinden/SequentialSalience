@@ -89,12 +89,20 @@ def train(seq, stim, stim_names, dataset):
     print(stim.shape)
     print(seq.shape)
 
+    stim_train = stim[0:500]
+    stim_val = stim[500:600]
+    stim_test = stim[600:700]
+
+    seq_train = seq[0:500]
+    seq_val = seq[500:600]
+    seq_test = seq[600:700]
+
     gen_save_path = "gen.h5"
     dec_save_path = "dec.h5"
     
     #Creating batches of stimuli
     stim_batches = []
-    for curr in stim:
+    for curr in stim_train:
         stim_batches.append(cv2.resize(curr, dsize = (224, 224)))
     stim_batches = np.array(stim_batches)
     stim_batches = preprocess_input(stim_batches)
@@ -106,44 +114,21 @@ def train(seq, stim, stim_names, dataset):
 
     print(stim_batches.shape)
 
-    stim_batches_train = stim_batches[0:500]
-    stim_batches_val = stim_batches[500:600]
-    stim_batches_test = stim_batches[600:700]
-
     #creating batches of sequences
-    n_batches = seq.shape[0] / batch_size
-    seq_batches = np.array(np.split(seq, n_batches))
+    n_batches = seq_train.shape[0] / batch_size
+    seq_batches = np.array(np.split(seq_train, n_batches))
     if seq_batches[-1].shape[0] != seq_batches[0].shape[0]:
         np.delete(seq_batches, -1, 0)
     seq_batches = np.array(seq_batches)
-
-    if os.path.isfile(gen_save_path):
-        gen = tf.keras.models.load_model(gen_save_path)
-    else:
-        gen, _ = models.generator(**params)
-
-    if os.path.isfile(dec_save_path):
-        dec = tf.keras.models.load_model(dec_save_path)
-    else:
-        dec = models.decoder(lstm_activation=lstm_activation, optimizer=opt, weights="-")
-
-    params_gan = {
-        'content_loss': content_loss,
-        'optimizer': opt,
-        'loss_weights': [1.0, 1.0],
-        'generator': gen, 
-        'decoder': dec,
-        'G': G
-    }
 
     for epoch in range(1, epochs + 1):
         global_epoch_number = epoch
 
         #Loading Models
         if epoch > 5:
-            params_gan['loss_weights'] = [1, 0.5]
+            curr_loss_weights = [1, 0.5]
         else:
-            params_gan['loss_weights'] = [0, 0.5]
+            curr_loss_weights = [0, 0.5]
 
         _, gen = models.generator(**params)
         if os.path.isfile(gen_save_path):
@@ -153,9 +138,18 @@ def train(seq, stim, stim_names, dataset):
         if os.path.isfile(dec_save_path):
             gen.load_weights(dec_save_path)
 
+        params_gan = {
+            'content_loss': content_loss,
+            'optimizer': opt,
+            'loss_weights': curr_loss_weights,
+            'generator': gen, 
+            'decoder': dec,
+            'G': G
+        }
+
         _, gen_dec = models.gen_dec(**params_gan)
 
-        for batch_num, (stim_batch, seq_batch) in enumerate(zip(stim_batches_train, seq_batches)):
+        for batch_num, (stim_batch, seq_batch) in enumerate(zip(stim_batches, seq_batches)):
             print(f"Training on batch {batch_num} and epoch {epoch}. {stim_batch.shape} {seq_batch.shape}")
 
             #Creating Sequence Output
