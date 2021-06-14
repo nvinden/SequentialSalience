@@ -133,7 +133,7 @@ def train(seq, stim, stim_names, dataset):
     if os.path.isfile("epoch_number.npy"):
         starting_epoch = np.load("epoch_number.npy")
     else:
-        starting_epoch = 5
+        starting_epoch = 1
 
     for epoch in range(1, epochs + 1):
         if epoch < starting_epoch:
