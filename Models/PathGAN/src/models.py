@@ -88,7 +88,7 @@ def generator(n_hidden_gen=None, lstm_activation=None, dropout=None, optimizer=N
         print("Loading generator weights")
         generator.load_weights(weights)
 
-    if G > 1 : 
+    if G > 1 :
         generator_parallel = multi_gpu_model(generator, gpus=G)
         generator_parallel.compile(loss=loss, optimizer=optimizer, sample_weight_mode='temporal', metrics=['mae'])
     else: 

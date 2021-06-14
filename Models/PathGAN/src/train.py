@@ -85,10 +85,12 @@ def train(seq, stim, stim_names, dataset):
         'G':G
     }
 
+    print(stim.shape)
+    print(seq.shape)
+
     gen_save_path = "gen.h5"
     dec_save_path = "dec.h5"
     
-
     #Creating batches of stimuli
     stim_batches = []
     for curr in stim:
@@ -146,7 +148,9 @@ def train(seq, stim, stim_names, dataset):
 
         _, gen_dec = models.gen_dec(**params_gan)
 
-        for stim_batch, seq_batch in zip(stim_batches, seq_batches):
+        for batch_num, (stim_batch, seq_batch) in enumerate(zip(stim_batches, seq_batches)):
+            print(f"Training on batch {batch_num} and epoch {epoch}. {stim_batch.shape} {seq_batch}")
+
             #Creating Sequence Output
             seq_real = _create_seq_input_real(seq_batch, dataset)
             seq_gen = _create_seq_input_gen(gen_dec, stim_batch)
@@ -172,8 +176,6 @@ def train(seq, stim, stim_names, dataset):
                 noisy_stim_batch = stim_batch + noise
                 outs = gen_dec.train_on_batch(x = [noisy_stim_batch, stim_batch], y = [gen_dec_result, seq_real[i]])
                 print(outs)
-
-            print("Batch Complete...")
     
     dec.save_weights(dec_save_path)
     gen.save_weights(gen_save_path)
