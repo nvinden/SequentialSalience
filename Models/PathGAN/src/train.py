@@ -95,7 +95,7 @@ def train(seq, stim, stim_names, dataset):
     #Creating batches of stimuli
     stim_batches = []
     for curr in stim:
-        stim_batches.append(cv2.resize(curr, dsize = [224, 224]))
+        stim_batches.append(cv2.resize(curr, dsize = (224, 224)))
     stim_batches = np.array(stim_batches)
     stim_batches = preprocess_input(stim_batches)
     n_batches = stim_batches.shape[0] / batch_size
@@ -103,6 +103,10 @@ def train(seq, stim, stim_names, dataset):
     if stim_batches[-1].shape[0] != stim_batches[0].shape[0]:
         stim_batches.pop()
     stim_batches = np.array(stim_batches)
+
+    stim_batches_train = stim_batches[0:500]
+    stim_batches_val = stim_batches[500:600]
+    stim_batches_test = stim_batches[600:700]
 
     #creating batches of sequences
     n_batches = seq.shape[0] / batch_size
@@ -149,7 +153,7 @@ def train(seq, stim, stim_names, dataset):
 
         _, gen_dec = models.gen_dec(**params_gan)
 
-        for batch_num, (stim_batch, seq_batch) in enumerate(zip(stim_batches, seq_batches)):
+        for batch_num, (stim_batch, seq_batch) in enumerate(zip(stim_batches_train, seq_batches)):
             print(f"Training on batch {batch_num} and epoch {epoch}. {stim_batch.shape} {seq_batch}")
 
             #Creating Sequence Output
