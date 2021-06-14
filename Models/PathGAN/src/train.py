@@ -141,10 +141,12 @@ def train(seq, stim, stim_names, dataset):
 
         _, gen = models.generator(**params)
         if os.path.isfile(gen_save_path):
+            print("Loading generator from saved data...")
             gen.load_weights(gen_save_path)
 
         dec = models.decoder(lstm_activation=lstm_activation, optimizer=opt, weights="-")
         if os.path.isfile(dec_save_path):
+            print("Loading decoder from saved data...")
             dec.load_weights(dec_save_path)
 
         params_gan = {
