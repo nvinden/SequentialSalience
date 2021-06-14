@@ -114,7 +114,7 @@ def train(seq, stim, stim_names, dataset):
     n_batches = seq.shape[0] / batch_size
     seq_batches = np.array(np.split(seq, n_batches))
     if seq_batches[-1].shape[0] != seq_batches[0].shape[0]:
-        seq_batches.pop()
+        np.delete(seq_batches, -1, 0)
     seq_batches = np.array(seq_batches)
 
     if os.path.isfile(gen_save_path):
