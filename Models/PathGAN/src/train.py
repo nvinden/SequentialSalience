@@ -101,7 +101,7 @@ def train(seq, stim, stim_names, dataset):
     n_batches = stim_batches.shape[0] / batch_size
     stim_batches = np.array(np.split(stim_batches, n_batches))
     if stim_batches[-1].shape[0] != stim_batches[0].shape[0]:
-        stim_batches.pop()
+        np.delete(stim_batches, -1, 0)
     stim_batches = np.array(stim_batches)
 
     print(stim_batches.shape)
