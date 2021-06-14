@@ -1,10 +1,10 @@
 from . import models, predict, utils
-#from keras.models import *
+from keras.models import *
 from keras.optimizers import SGD, RMSprop
 from keras.layers import *
 from keras.applications.vgg16 import VGG16
 from keras.applications.vgg19 import preprocess_input
-from keras.utils.training_utils import multi_gpu_model
+#from keras.utils.training_utils import multi_gpu_model
 import keras
 import h5py
 import numpy as np
