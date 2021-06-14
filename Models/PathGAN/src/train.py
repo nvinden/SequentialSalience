@@ -85,6 +85,7 @@ def train(seq, stim, stim_names, dataset):
         'G':G
     }
 
+    print(tf.test.is_gpu_available)
     print(stim.shape)
     print(seq.shape)
 
