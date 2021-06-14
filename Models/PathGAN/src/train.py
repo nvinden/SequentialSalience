@@ -56,7 +56,7 @@ def _create_seq_input_gen(gen, stim_batch):
 def train(seq, stim, stim_names, dataset):
     loss_weights            = [1., 0.05] #0.05
     adversarial_iteration   = 2
-    batch_size              = 100 #100
+    batch_size              = 32 #100
     mini_batch_size         = 800 #4000
     G                       = 1
     epochs                  = 200
@@ -103,6 +103,8 @@ def train(seq, stim, stim_names, dataset):
     if stim_batches[-1].shape[0] != stim_batches[0].shape[0]:
         stim_batches.pop()
     stim_batches = np.array(stim_batches)
+
+    print(stim_batches.shape)
 
     stim_batches_train = stim_batches[0:500]
     stim_batches_val = stim_batches[500:600]
