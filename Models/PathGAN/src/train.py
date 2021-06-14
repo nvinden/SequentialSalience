@@ -130,7 +130,15 @@ def train(seq, stim, stim_names, dataset):
         seq_batches = seq_batches[:-1]
     seq_batches = np.array(seq_batches)
 
+    if os.path.isfile("epoch_number.npy"):
+        starting_epoch = np.load("epoch_number.npy")
+    else:
+        starting_epoch = 5
+
     for epoch in range(1, epochs + 1):
+        if epoch < starting_epoch:
+            continue
+
         global_epoch_number = epoch
 
         #Loading Models
@@ -191,7 +199,7 @@ def train(seq, stim, stim_names, dataset):
     
         dec.save_weights(dec_save_path)
         gen.save_weights(gen_save_path)
-
+        np.save("epoch_number.npy", np.array([epoch], dtype=np.int32))
     print(f"Epoch {epoch} complete...")
 
     print(gen.summary())
