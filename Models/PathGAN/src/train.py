@@ -51,7 +51,16 @@ def _create_seq_input_gen(gen, stim_batch):
         out.append(x)
     return out
         
-
+def group_list(l, group_size):
+    """
+    :param l:           list
+    :param group_size:  size of each group
+    :return:            Yields successive group-sized lists from l.
+    """
+    out = list()
+    for i in range(0, len(l), group_size):
+        out.append(l[i:i+group_size])
+    return out
 
 def train(seq, stim, stim_names, dataset):
     loss_weights            = [1., 0.05] #0.05
@@ -107,18 +116,18 @@ def train(seq, stim, stim_names, dataset):
     stim_batches = np.array(stim_batches)
     stim_batches = preprocess_input(stim_batches)
     n_batches = stim_batches.shape[0] / batch_size
-    stim_batches = np.array(np.split(stim_batches, n_batches))
+    stim_batches = group_list(stim_batches, batch_size)
     if stim_batches[-1].shape[0] != stim_batches[0].shape[0]:
-        np.delete(stim_batches, -1, 0)
+        stim_batches = stim_batches[:-1]
     stim_batches = np.array(stim_batches)
 
     print(stim_batches.shape)
 
     #creating batches of sequences
     n_batches = seq_train.shape[0] / batch_size
-    seq_batches = np.array(np.split(seq_train, n_batches))
+    seq_batches = group_list(seq_train, batch_size)
     if seq_batches[-1].shape[0] != seq_batches[0].shape[0]:
-        np.delete(seq_batches, -1, 0)
+        seq_batches = seq_batches[:-1]
     seq_batches = np.array(seq_batches)
 
     for epoch in range(1, epochs + 1):
