@@ -1,8 +1,8 @@
-#from keras.models import *
+from keras.models import *
 from keras.optimizers import SGD, RMSprop
 from keras.layers import *
 from keras.applications.vgg16 import VGG16
-from keras.utils.training_utils import multi_gpu_model
+#from keras.utils.training_utils import multi_gpu_model
 import keras
 import h5py
 import numpy as np
