@@ -187,8 +187,8 @@ def train(seq, stim, stim_names, dataset):
                 outs = gen_dec.train_on_batch(x = [noisy_stim_batch, stim_batch], y = [gen_dec_result, seq_real[i]])
                 print(f"loss: {outs[0]}")
     
-    dec.save_weights(dec_save_path)
-    gen.save_weights(gen_save_path)
+        dec.save_weights(dec_save_path)
+        gen.save_weights(gen_save_path)
 
     print(f"Epoch {epoch} complete...")
 
