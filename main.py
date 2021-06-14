@@ -1,6 +1,7 @@
 import utils
 
 import os
+import numpy as np
 
 import tensorflow as tf
 import Eval.dataset as ds
@@ -27,11 +28,7 @@ def main():
     stim = dataset.get("stimuli")
     stim_names = dataset.get("stimuli_path")
 
-    print(seq.shape)
-    print(stim.shape)
-    print(stim_names.shape)
-
-
+    #utils.test_IOR_ROI(seq, stim, stim_names, ds_name)
     train(seq = seq, stim = stim, stim_names = stim_names, dataset = ds_name)
     '''
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)

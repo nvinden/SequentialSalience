@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Normal
-from utils import WeightedGlobalMeanPool
+from .utils import WeightedGlobalMeanPool
 
 
 class FixationDuration(nn.Module):
