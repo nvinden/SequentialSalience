@@ -103,10 +103,10 @@ def gen_dec(content_loss=None, optimizer=None, loss_weights=None, generator=None
     generator_input = Input(shape=shape)
     dec_img_input = Input(shape=shape)
 
-    generator.name = 'generator'
+    generator._name = 'generator'
     x = generator(generator_input)
 
-    decoder.name = 'discriminator'
+    decoder._name = 'discriminator'
     decoder.trainable = False
 
     output = decoder([x, dec_img_input])
