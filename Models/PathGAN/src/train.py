@@ -65,7 +65,7 @@ def group_list(l, group_size):
 def train(seq, stim, stim_names, dataset):
     loss_weights            = [1., 0.05] #0.05
     adversarial_iteration   = 2
-    batch_size              = 32 #100
+    batch_size              = 25 #100
     mini_batch_size         = 800 #4000
     G                       = 1
     epochs                  = 200
