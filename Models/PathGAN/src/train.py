@@ -31,7 +31,7 @@ def _create_seq_input_real(seq, dataset):
     batch_size = seq.shape[0]
 
     out = []
-    for i in range(8):
+    for i in range(15):
         curr = np.zeros([batch_size, 63, 4])
         in_batch = seq[:, i]
         for j in range(batch_size):
@@ -179,11 +179,13 @@ def train(seq, stim, stim_names, dataset):
             gen_dec_result = np.zeros([batch_size, 63, 1])
 
             #training discriminator
-            for i, seq_real_curr in enumerate(seq_real):
+            for i in range(8):
+                seq_real_curr = seq_real[i]
                 outs = dec.train_on_batch([seq_real_curr, stim_batch], real_dec_result)
                 print(f"{i+1}) discriminator real loss: {outs[0]}")
             
-            for i, seq_gen_curr in enumerate(seq_gen):
+            for i in range(8):
+                seq_gen_curr = seq_gem[i]
                 outs = dec.train_on_batch([seq_gen_curr, stim_batch], gen_dec_result)
                 print(f"{i+1}) discriminator fake loss: {outs[0]}")
 
