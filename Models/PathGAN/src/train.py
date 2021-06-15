@@ -194,7 +194,7 @@ def train(seq, stim, stim_names, dataset):
                 #Creating Generator Input
                 noise  = np.random.normal(0,3, stim_batch.shape)
                 noisy_stim_batch = stim_batch + noise
-                outs = gen_dec.train_on_batch(x = [noisy_stim_batch, stim_batch], y = [gen_dec_result, seq_real[i]])
+                outs = gen_dec.train_on_batch(x = [noisy_stim_batch, stim_batch], y = [gen_dec_result, seq_gen[i]])
                 print(f"{i+1}) generator loss: {outs[0]}")
     
         dec.save_weights(dec_save_path)
