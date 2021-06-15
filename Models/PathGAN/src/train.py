@@ -188,7 +188,7 @@ def train(seq, stim, stim_names, dataset):
                 print(f"discriminator fake loss: {outs[0]}")
 
             #training generator
-            for i in range(8):
+            for i in range(15):
                 #Creating Generator Input
                 noise  = np.random.normal(0,3, stim_batch.shape)
                 noisy_stim_batch = stim_batch + noise
