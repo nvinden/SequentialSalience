@@ -178,16 +178,14 @@ def train(seq, stim, stim_names, dataset):
             real_dec_result = np.ones([batch_size, 63, 1])
             gen_dec_result = np.zeros([batch_size, 63, 1])
 
-            '''
-
             #training discriminator
             for seq_real_curr in seq_real:
-                dec.train_on_batch([seq_real_curr, stim_batch], real_dec_result)
+                outs = dec.train_on_batch([seq_real_curr, stim_batch], real_dec_result)
+                print(f"discriminator real loss: {outs[0]}")
             
             for seq_gen_curr in seq_gen:
-                dec.train_on_batch([seq_gen_curr, stim_batch], gen_dec_result)
-
-            '''
+                outs = dec.train_on_batch([seq_gen_curr, stim_batch], gen_dec_result)
+                print(f"discriminator fake loss: {outs[0]}")
 
             #training generator
             for i in range(8):
@@ -195,7 +193,7 @@ def train(seq, stim, stim_names, dataset):
                 noise  = np.random.normal(0,3, stim_batch.shape)
                 noisy_stim_batch = stim_batch + noise
                 outs = gen_dec.train_on_batch(x = [noisy_stim_batch, stim_batch], y = [gen_dec_result, seq_real[i]])
-                print(f"loss: {outs[0]}")
+                print(f"generator loss: {outs[0]}")
     
         dec.save_weights(dec_save_path)
         gen.save_weights(gen_save_path)
