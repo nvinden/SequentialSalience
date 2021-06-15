@@ -44,7 +44,7 @@ def _create_seq_input_real(seq, dataset):
 
 def _create_seq_input_gen(gen, stim_batch):
     out = []
-    for i in range(8):
+    for i in range(15):
         noise  = np.random.normal(0,3, stim_batch.shape)
         noisy_stim_batch = stim_batch + noise
         _, x = gen.predict([noisy_stim_batch, stim_batch], batch_size=stim_batch.shape[0], verbose=0)
