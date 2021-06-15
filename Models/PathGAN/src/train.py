@@ -185,7 +185,7 @@ def train(seq, stim, stim_names, dataset):
                 print(f"{i+1}) discriminator real loss: {outs[0]}")
             
             for i in range(8):
-                seq_gen_curr = seq_gem[i]
+                seq_gen_curr = seq_gen[i]
                 outs = dec.train_on_batch([seq_gen_curr, stim_batch], gen_dec_result)
                 print(f"{i+1}) discriminator fake loss: {outs[0]}")
 
