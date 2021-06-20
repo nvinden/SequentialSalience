@@ -21,3 +21,8 @@ Models/IRL/images/
 Models/IRL/trained_models/
 Models/SaltiNet/src/pathnet_model_v2.h5
 Models/PathGAN/weights
+
+dec.h5
+gen.h5
+
+sal_volumes.npy

@@ -24,6 +24,27 @@ def get_model():
 	model = load_model(pretrained_path)
 	return model
 
+def get_nick_model():
+	if os.path.isfile("nick_model.h5"):
+		pass
+	else:
+		model = keras.Sequential()
+		org_model = get_model()
+		for layer in org_model.layers[:-3]:
+			model.add(layer)
+		model.add(keras.layers.UpSampling2D(size=(4, 4), data_format="channels_first"))
+		model.add(keras.layers.Activation(keras.activations.sigmoid))
+
+		optim = keras.optimizers.SGD(learning_rate=0.001)
+
+
+		model.compile(optimizer=optim, loss = 'binary_crossentropy')
+
+
+	return model
+
+
+
 def sample_slice(pred, size, n_samples=1, use_heuristic=True, samples=[]):
 	"""
 		Takes random points from the slice
