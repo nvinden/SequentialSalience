@@ -1,6 +1,6 @@
 numpy
 requests
-scipy==1.1.0
+scipy
 Pillow
 fastdtw
 editdistance
