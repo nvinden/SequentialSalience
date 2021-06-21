@@ -26,10 +26,13 @@ def get_model():
 	return model
 
 def get_nick_model():
-	if os.path.isfile("nick_model_config.json"):
+	if os.path.isfile("nick_model.h5"):
+		model = load_model('nick_model.h5')
+		'''
 		json_file = open("nick_model_config.json")
 		json_config = json.load(json_file)
 		model = keras.models.model_from_json(json_config)
+		'''
 	else:
 		model = keras.Sequential()
 		org_model = get_model()
@@ -38,15 +41,14 @@ def get_nick_model():
 		model.add(keras.layers.UpSampling2D(size=(4, 4), data_format="channels_first"))
 		model.add(keras.layers.Activation(keras.activations.sigmoid))
 
+		'''
 		json_config = model.to_json()
 		with open('nick_model_config.json', 'w') as outfile:
 			json.dump(json_config, outfile)
+		'''
 
 	optim = keras.optimizers.SGD(learning_rate=0.001)
 	model.compile(optimizer=optim, loss = 'binary_crossentropy')
-
-	if os.path.isfile("nick_model.hdf5"):
-		model.load_weights("nick_model.hdf5")
 
 	return model
 
