@@ -28,15 +28,26 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    ds_name = "OSIE"
+    seq_dataset_list = ("SUN09", "LOWRES", "KTH")
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
-    dataset.load(ds_name)
+    
+    for ds_name in seq_dataset_list:
+        dataset.load(ds_name)
 
+        print(dataset.data_type)
+
+        seq = dataset.get("sequence")
+        stim = dataset.get("stimuli")
+        stim_names = dataset.get("stimuli_path")
+        utils.test_eymol(seq, stim, stim_names, ds_name)
+
+    '''
     seq = dataset.get("sequence", index = range(10))
     stim = dataset.get("stimuli", index = range(10))
     stim_names = dataset.get("stimuli_path", index = range(10))
+    '''
 
-    utils.test_trained_pathgan(seq, stim, stim_names)
+    #utils.test_trained_pathgan(seq, stim, stim_names)
 
     '''
     longest = 0
@@ -56,15 +67,6 @@ def main():
     print(longest)
     '''
     
-
-    seq = dataset.get("sequence")
-    stim = dataset.get("stimuli")
-    stim_names = dataset.get("stimuli_path")
-
-    #train_salti(seq, stim)
-
-    #utils.test_IOR_ROI(seq, stim, stim_names, ds_name)
-    train(seq = seq, stim = stim, stim_names = stim_names, dataset = ds_name)
     '''
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
     for dset in dataset.dataset_names():

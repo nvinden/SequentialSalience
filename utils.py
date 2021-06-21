@@ -250,32 +250,32 @@ def test_eymol(seq, stim, stim_names, dataset):
   test = dataset
 
   for fix_batch, samp_pic, samp_pic_path in zip(fixations, pictures, pictures_path):
-    #try:
-    #result arrays for metric results, P's and Q's in total
-    results = np.empty((0, len(metrics)), dtype=np.float64)
-    actual_list = []
-    i += 1
-    gaze_positions = eymol.compute_simulated_scanpath(samp_pic, seconds=5)
-    fix2 = eymol.get_fixations(gaze_positions)
-    P_curr = fix2[:, 0:2]
-    for fix1 in fix_batch:
-      Q_curr = fix1[:, 0:2]
+    try:
+      #result arrays for metric results, P's and Q's in total
+      results = np.empty((0, len(metrics)), dtype=np.float64)
+      actual_list = []
+      i += 1
+      gaze_positions = eymol.compute_simulated_scanpath(samp_pic, seconds=5)
+      fix2 = eymol.get_fixations(gaze_positions)
+      P_curr = fix2[:, 0:2]
+      for fix1 in fix_batch:
+        Q_curr = fix1[:, 0:2]
 
-      out = run_diagnostics(P_curr, Q_curr)
+        out = run_diagnostics(P_curr, Q_curr)
 
-      #concatenating results to result matix
-      if test in ["KTH", "OSIE", "LOWRES"]:
-        results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
-      elif test == "SUN09":
-        out = np.array(out, dtype=np.float64)
-        out = np.expand_dims(out, axis=0)
-        results = np.concatenate((results, out), axis=0)
-      actual_list.append(Q_curr)
+        #concatenating results to result matix
+        if test in ["KTH", "OSIE", "LOWRES"]:
+          results = np.concatenate((results, np.expand_dims(out, axis=0)), axis=0)
+        elif test == "SUN09":
+          out = np.array(out, dtype=np.float64)
+          out = np.expand_dims(out, axis=0)
+          results = np.concatenate((results, out), axis=0)
+        actual_list.append(Q_curr)
 
-    print(f"Run number: {i}")
-    save_json(results, test, i, P_curr, actual_list, samp_pic_path.split("/")[-1].split(".")[0], samp_pic.shape, "Eymol")
-    #except:
-      #print("Fail")
+      print(f"Run number: {i}")
+      save_json(results, test, i, P_curr, actual_list, samp_pic_path.split("/")[-1].split(".")[0], samp_pic.shape, "Eymol")
+    except:
+      print("Fail")
       #dont maintain this
 
 def _get_IRL_generator():
