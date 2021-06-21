@@ -26,12 +26,7 @@ def get_model():
 	return model
 
 def get_nick_model():
-	if os.path.isfile("nick_model_config.json") and os.path.isfile("nick_model.hdf5"):
-		json_file = open("nick_model_config.json")
-		json_config = json.load(json_file)
-		model = keras.models.model_from_json(json_config)
-		model.load_weights("nick_model.hdf5")
-	elif os.path.isfile("nick_model_config.json"):
+	if os.path.isfile("nick_model_config.json"):
 		json_file = open("nick_model_config.json")
 		json_config = json.load(json_file)
 		model = keras.models.model_from_json(json_config)
@@ -49,6 +44,9 @@ def get_nick_model():
 
 	optim = keras.optimizers.SGD(learning_rate=0.001)
 	model.compile(optimizer=optim, loss = 'binary_crossentropy')
+
+	if os.path.isfile("nick_model.hdf5"):
+		model.load_weights("nick_model.hdf5")
 
 	return model
 
