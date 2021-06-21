@@ -8,6 +8,8 @@ import Eval.metrics.metrics as met
 from Models import *
 from Models.Eymol import eymol
 
+'''
+
 from Models.IRL.irl_dcb import config, builder, trainer, utils
 from Models.IRL import dataset
 
@@ -18,6 +20,7 @@ import Models.SaltiNet.src.pathnet as s_pathnet
 import Models.PathGAN.src.predict as p_predict
 
 import Models.IttiKoch.pySaliencyMap as ik
+'''
 
 import numpy as np
 import cv2
