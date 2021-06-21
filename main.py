@@ -48,7 +48,7 @@ def main():
     print(longest)
     '''
 
-    seq = dataset.get("sequence", index = range(0, 500))
+    seq = dataset.get("sequence", index = range(0, 250))
     stim = dataset.get("stimuli", index = range(0, 250))
 
     '''
