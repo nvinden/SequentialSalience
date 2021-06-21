@@ -168,6 +168,8 @@ def train(seq, stim, stim_names, dataset):
 
         _, gen_dec = models.gen_dec(**params_gan)
 
+        print(gen_dec.summary())
+
         for batch_num, (stim_batch, seq_batch) in enumerate(zip(stim_batches, seq_batches)):
             print(f"Training on batch {batch_num} and epoch {epoch}. {stim_batch.shape} {seq_batch.shape}")
 

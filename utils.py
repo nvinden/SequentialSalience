@@ -700,4 +700,37 @@ def _get_IOR_ROI_fix_from_url(url):
 def test_IOR_ROI(seq, stim, stim_names, dataset):
     _get_IOR_ROI_fix_from_url("bananas")
 
+def test_trained_pathgan(seq, stim, stim_names):
+  from Models.PathGAN.src.predict import predict_from_numpy
+  import Models.PathGAN.src.models as models
+  from keras.applications.vgg19 import preprocess_input
+  from keras.preprocessing import image
+  import keras
+  from Models.PathGAN.src.utils import load_image
+
+  opt = keras.optimizers.RMSprop(lr=0.05, rho=0.9, epsilon=1e-08, decay=0.0)
+
+  # Get the model
+  params = {
+      'n_hidden_gen':1000,
+      'lstm_activation':'tanh',
+      'dropout':0.1,
+      'optimizer':opt,
+      'loss':'mse',
+      'weights':"Models/PathGAN/weights/generator_single_weights.h5",
+      'G':1
+  }
+  _, gen = models.generator(**params)
+  gen.trainable = False
+
+  for curr_image, curr_seq, curr_name in zip(stim, seq, stim_names):
+    curr_image = cv2.resize(curr_image, dsize = (224, 224))
+    curr_image = preprocess_input(curr_image)
+    curr_image = np.expand_dims(curr_image, 0)
+
+    out = gen.predict(x = curr_image, batch_size = 1)
+
+    print(out)
+    
+
 

@@ -1,4 +1,5 @@
-#import utils
+
+import utils
 
 import os
 import numpy as np
@@ -27,19 +28,15 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    ds_name = "SALICON"
+    ds_name = "OSIE"
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
     dataset.load(ds_name)
-    '''
-    dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
-    ds_names = dataset.dataset_names()
-    for ds_name in ds_names:
-        dataset.load(ds_name)
-        print(dataset.data_type)
-    '''
 
-    seq = dataset.get("sequence", index = range(3000))
-    stim = dataset.get("stimuli", index = range(3000))
+    seq = dataset.get("sequence", index = range(10))
+    stim = dataset.get("stimuli", index = range(10))
+    stim_names = dataset.get("stimuli_path", index = range(10))
+
+    utils.test_trained_pathgan(seq, stim, stim_names)
 
     '''
     longest = 0
@@ -60,19 +57,14 @@ def main():
     '''
     
 
-    '''
     seq = dataset.get("sequence")
     stim = dataset.get("stimuli")
     stim_names = dataset.get("stimuli_path")
-    heat = dataset.get("heatmap")
-    fix_t = dataset.get("fixation_time")
-    fix_dw = dataset.get("fixation_dw")
-    '''
 
-    train_salti(seq, stim)
+    #train_salti(seq, stim)
 
     #utils.test_IOR_ROI(seq, stim, stim_names, ds_name)
-    #train(seq = seq, stim = stim, stim_names = stim_names, dataset = ds_name)
+    train(seq = seq, stim = stim, stim_names = stim_names, dataset = ds_name)
     '''
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
     for dset in dataset.dataset_names():
