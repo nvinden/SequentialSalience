@@ -85,7 +85,7 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
 
 def _load_sal_vals(index):
     file_name = f"sal_volumes_{index}.npy"
-    if os.path.isfile(file_name)
+    if os.path.isfile(file_name):
         return np.load(file_name)
 
 def train_salti(fixations, stimuli, dataset = "SALICON"):
