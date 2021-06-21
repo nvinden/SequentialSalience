@@ -583,8 +583,6 @@ def test_CLE(seq, stim, stim_names, dataset, sal_maps):
       scan = np.array(scan)
       fix_to_json(scan, curr_seq, image = image, name = curr_name, directory = "CLE", dataset = dataset)
 
-from Models.IOR_ROI.components import *
-
 def _get_IOR_ROI_fix_from_url(url):
   import matplotlib.pyplot as plt
 
