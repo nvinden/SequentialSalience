@@ -49,7 +49,7 @@ def main():
     '''
 
     seq = dataset.get("sequence", index = range(0, 500))
-    stim = dataset.get("stimuli", index = range(0, 500))
+    stim = dataset.get("stimuli", index = range(0, 250))
 
     '''
     seq = dataset.get("sequence")
