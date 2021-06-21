@@ -71,6 +71,28 @@ def main():
 
     train_salti(seq, stim, ds_name)
 
+    '''
+    seq_dataset_list = ("OSIE", "SUN09", "LOWRES", "KTH")
+    dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
+
+    for ds_name in seq_dataset_list:
+        if ds_name in ["OSIE", ]:
+            continue
+        dataset.load(ds_name)
+        seq = dataset.get("sequence")
+        stim = dataset.get("stimuli")
+        stim_names = dataset.get("stimuli_path")
+        utils.test_itti_koch(seq, stim, stim_names, ds_name)
+    
+    for ds_name in seq_dataset_list:
+        dataset.load(ds_name)
+
+        seq = dataset.get("sequence")
+        stim = dataset.get("stimuli")
+        stim_names = dataset.get("stimuli_path")
+        utils.test_eymol(seq, stim, stim_names, ds_name)
+    '''
+
     #utils.test_IOR_ROI(seq, stim, stim_names, ds_name)
     #train(seq = seq, stim = stim, stim_names = stim_names, dataset = ds_name)
     '''
