@@ -26,13 +26,11 @@ def get_model():
 	return model
 
 def get_nick_model():
-	if os.path.isfile("nick_model.h5"):
-		model = load_model('nick_model.h5')
-		'''
+	if os.path.isfile("nick_model_config.json"):
+		#model = load_model('nick_model.h5')
 		json_file = open("nick_model_config.json")
 		json_config = json.load(json_file)
 		model = keras.models.model_from_json(json_config)
-		'''
 	else:
 		model = keras.Sequential()
 		org_model = get_model()
