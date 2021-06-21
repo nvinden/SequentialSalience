@@ -102,6 +102,7 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     #creating inputs
     out = list()
     for i in range(stimuli.shape[0]):
+        print(i)
         image_now = cv2.resize(stimuli[i], (600, 300), interpolation = cv2.INTER_CUBIC)
         out.append(image_now)
     stimuli = np.array(out)
