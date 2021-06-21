@@ -28,7 +28,7 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    seq_dataset_list = ("SUN09", "LOWRES", "KTH")
+    seq_dataset_list = ("OSIE", "SUN09", "KTH", )
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
     
     for ds_name in seq_dataset_list:
