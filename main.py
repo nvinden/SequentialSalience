@@ -39,7 +39,7 @@ def main():
         seq = dataset.get("sequence")
         stim = dataset.get("stimuli")
         stim_names = dataset.get("stimuli_path")
-        utils.test_eymol(seq, stim, stim_names, ds_name)
+        utils.test_trained_pathgan(seq, stim, stim_names, ds_name)
 
     '''
     seq = dataset.get("sequence", index = range(10))

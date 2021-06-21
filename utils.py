@@ -701,7 +701,7 @@ def _get_IOR_ROI_fix_from_url(url):
 def test_IOR_ROI(seq, stim, stim_names, dataset):
     _get_IOR_ROI_fix_from_url("bananas")
 
-def test_trained_pathgan(seq, stim, stim_names):
+def test_trained_pathgan(seq, stim, stim_names, ds_name):
   from Models.PathGAN.src.predict import predict_from_numpy
   import Models.PathGAN.src.models as models
   from keras.applications.vgg19 import preprocess_input
