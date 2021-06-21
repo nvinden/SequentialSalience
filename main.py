@@ -1,4 +1,4 @@
-#import utils
+import utils
 
 import os
 import numpy as np
@@ -27,9 +27,8 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    ds_name = "SALICON"
-    dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
-    dataset.load(ds_name)
+    utils.create_csv_from_JSON_directory("Results/IttiKoch", "IttiKoch")
+
     '''
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
     ds_names = dataset.dataset_names()
@@ -37,9 +36,6 @@ def main():
         dataset.load(ds_name)
         print(dataset.data_type)
     '''
-
-    seq = dataset.get("sequence", index = range(3000))
-    stim = dataset.get("stimuli", index = range(3000))
 
     '''
     longest = 0
@@ -69,7 +65,7 @@ def main():
     fix_dw = dataset.get("fixation_dw")
     '''
 
-    train_salti(seq, stim, ds_name)
+    #train_salti(seq, stim, ds_name)
 
     '''
     seq_dataset_list = ("OSIE", "SUN09", "LOWRES", "KTH")

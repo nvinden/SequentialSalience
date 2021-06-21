@@ -29,8 +29,8 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
         step_time = _LONGEST_SALICON_SCANPATH_DURATION / _QUANTIZATION_SLICES
 
     sal_volumes = list()
-    for image in fixations:
-        curr_sal_vol = np.zeros([12, 300, 600])
+    for index, image in enumerate(fixations):
+        curr_sal_vol = np.zeros([12, 300, 600], dtype=np.float32)
         for fix in image:
             if fix[-1, 2] > _LONGEST_SALICON_SCANPATH_DURATION or fix[-1, 2] == float("inf"):
                 continue
@@ -49,10 +49,10 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
                     if time_step >= 12:
                         print("TIME_STEP ERROR ", time_step)
                         time_step = 11
-                    if height_val == 300:
-                        height_val -= 1
-                    if width_val == 600:
-                        width_val -= 1
+                    if height_val >= 300:
+                        height_val = 299
+                    if width_val >= 600:
+                        width_val = 599
                     curr_sal_vol[time_step, height_val, width_val] = 1
         #saving salience volumes for testing
         curr_sal_vol = ndimage.gaussian_filter(curr_sal_vol, [4, 20, 20])
@@ -63,11 +63,15 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
         for i in range(12):
             curr_sal_vol[i] /= np.amax(curr_sal_vol[i])
         
+        print(index)
         sal_volumes.append(curr_sal_vol)
 
+        if to_save and index % 1000 == 0 and index != 0:
+            sal_volumes = np.array(sal_volumes)
+            np.save("sal_volumes.npy", sal_volumes)
+
     sal_volumes = np.array(sal_volumes)
-    if to_save:
-        np.save("sal_volumes.npy", sal_volumes)
+
     return sal_volumes
                 
 
@@ -95,6 +99,7 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     filepath = "nick_model.h5"
     ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only = False)
 
+    exit()
     model.fit(x=stimuli, y=sal_volumes, batch_size=16, epochs=100, verbose=1, callbacks=[ckpt])
 
     print(model.summary())
