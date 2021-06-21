@@ -47,8 +47,8 @@ def get_nick_model():
 		with open('nick_model_config.json', 'w') as outfile:
 			json.dump(json_config, outfile)
 
-		optim = keras.optimizers.SGD(learning_rate=0.001)
-		model.compile(optimizer=optim, loss = 'binary_crossentropy')
+	optim = keras.optimizers.SGD(learning_rate=0.001)
+	model.compile(optimizer=optim, loss = 'binary_crossentropy')
 
 	return model
 
