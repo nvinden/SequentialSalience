@@ -69,7 +69,7 @@ def main():
     fix_dw = dataset.get("fixation_dw")
     '''
 
-    train_salti(seq, stim)
+    train_salti(seq, stim, ds_name)
 
     #utils.test_IOR_ROI(seq, stim, stim_names, ds_name)
     #train(seq = seq, stim = stim, stim_names = stim_names, dataset = ds_name)

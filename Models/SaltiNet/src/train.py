@@ -32,7 +32,7 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
     for image in fixations:
         curr_sal_vol = np.zeros([12, 300, 600])
         for fix in image:
-            if fix[-1, 2] > _LONGEST_SALICON_SCANPATH_DURATION:
+            if fix[-1, 2] > _LONGEST_SALICON_SCANPATH_DURATION or fix[-1, 2] == float("inf"):
                 continue
 
             if dataset in ["OSIE", ]:
