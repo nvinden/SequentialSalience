@@ -26,3 +26,5 @@ dec.h5
 gen.h5
 
 sal_volumes.npy
+
+nick_model.hdf5

@@ -38,8 +38,8 @@ def main():
         print(dataset.data_type)
     '''
 
-    seq = dataset.get("sequence", index = range(64))
-    stim = dataset.get("stimuli", index = range(64))
+    seq = dataset.get("sequence", index = range(8000))
+    stim = dataset.get("stimuli", index = range(8000))
 
     '''
     longest = 0
