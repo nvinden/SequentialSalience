@@ -46,8 +46,9 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
                     time_step = int(fix[i, 2] / step_time)
                     height_val = int(fix[i][1] / _SALICON_IMAGE_SHAPE[0] * _360_IMAGE_SHAPE[0])
                     width_val = int(fix[i][0] / _SALICON_IMAGE_SHAPE[1] * _360_IMAGE_SHAPE[1])
-                    if time_step == 12:
-                        time_step -= 1
+                    if time_step >= 12:
+                        print("TIME_STEP ERROR ", time_step)
+                        time_step = 11
                     if height_val == 300:
                         height_val -= 1
                     if width_val == 600:
