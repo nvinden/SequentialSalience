@@ -73,6 +73,7 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
 
 def train_salti(fixations, stimuli, dataset = "SALICON"):
     model = get_nick_model()
+
     #inp, image_size = load_image("Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/Stimuli/P12_10000x5000.jpg")
     '''
     inp = np.zeros([1, 3, 300, 600])
@@ -90,8 +91,9 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     stimuli = np.array(stimuli, dtype=np.float32) / 255.0
     stimuli = np.moveaxis(stimuli, -1, 1)
 
-    filepath = "saved-model-{epoch:02d}-{val_acc:.2f}.hdf5"
-    ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+    filepath = "nick_model.hdf5"
+    ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only = True)
+
 
     model.fit(x=stimuli, y=sal_volumes, batch_size=32, epochs=100, verbose=1, callbacks=[ckpt])
 
