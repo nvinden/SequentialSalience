@@ -6,6 +6,7 @@ from scipy import ndimage
 from PIL import Image
 import cv2
 import keras
+import math
 
 import os
 
@@ -18,18 +19,19 @@ _OSIE_IMAGE_SHAPE = [600, 800]
 _SALICON_IMAGE_SHAPE = [480, 640]
 _360_IMAGE_SHAPE = [300, 600]
 
-def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
-    if os.path.isfile("sal_volumes.npy") and from_save:
-        sal_volumes = np.load("sal_volumes.npy", allow_pickle = True)
-        return sal_volumes
+start = 0
 
+def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
     if dataset in ["OSIE", ]:
         step_time = _LONGEST_OSIE_SCANPATH_DURATION / _QUANTIZATION_SLICES
     elif dataset in ["SALICON", ]:
         step_time = _LONGEST_SALICON_SCANPATH_DURATION / _QUANTIZATION_SLICES
 
+    count = 0
     sal_volumes = list()
     for index, image in enumerate(fixations):
+        if index < start:
+            continue
         curr_sal_vol = np.zeros([12, 300, 600], dtype=np.float32)
         for fix in image:
             if fix[-1, 2] > _LONGEST_SALICON_SCANPATH_DURATION or fix[-1, 2] == float("inf"):
@@ -66,15 +68,25 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
         print(index)
         sal_volumes.append(curr_sal_vol)
 
-        if to_save and index % 1000 == 0 and index != 0:
-            sal_volumes = np.array(sal_volumes)
-            np.save("sal_volumes.npy", sal_volumes)
+        count += 1
 
+        if to_save and count % 100 == 0 and index != start:
+            number = int(math.ceil(index / 500))
+            save_val = np.array(sal_volumes)
+            print(f"SAL VOL LENGTH: {save_val.shape}")
+            np.save(f"sal_volumes_{number}.npy", save_val)
+            if count % 500 == 0:
+                sal_volumes = list()
+                count = 0
+    
     sal_volumes = np.array(sal_volumes)
 
     return sal_volumes
-                
 
+def _load_sal_vals(index):
+    file_name = f"sal_volumes_{index}.npy"
+    if os.path.isfile(file_name)
+        return np.load(file_name)
 
 def train_salti(fixations, stimuli, dataset = "SALICON"):
     model = get_nick_model()
@@ -85,7 +97,7 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     out = model.predict(inp, batch_size = 1)
     '''
     #creating outputs
-    sal_volumes = _create_sal_volumes(fixations, dataset)
+    sal_volumes = _load_sal_vals(1) #_create_sal_volumes(fixations, dataset, from_save = False)
 
     #creating inputs
     out = list()

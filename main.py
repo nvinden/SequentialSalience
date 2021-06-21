@@ -27,15 +27,8 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    utils.create_csv_from_JSON_directory("Results/IttiKoch", "IttiKoch")
-
-    '''
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
-    ds_names = dataset.dataset_names()
-    for ds_name in ds_names:
-        dataset.load(ds_name)
-        print(dataset.data_type)
-    '''
+    dataset.load("SALICON")
 
     '''
     longest = 0
@@ -54,6 +47,9 @@ def main():
                 longest = curr_longest
     print(longest)
     '''
+
+    seq = dataset.get("sequence", index = range(0, 500))
+    stim = dataset.get("stimuli", index = range(0, 500))
     
 
     '''
@@ -65,7 +61,7 @@ def main():
     fix_dw = dataset.get("fixation_dw")
     '''
 
-    #train_salti(seq, stim, ds_name)
+    train_salti(seq, stim, "SALICON")
 
     '''
     seq_dataset_list = ("OSIE", "SUN09", "LOWRES", "KTH")

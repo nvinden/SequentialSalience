@@ -25,6 +25,6 @@ Models/PathGAN/weights
 dec.h5
 gen.h5
 
-sal_volumes.npy
+sal_volumes*.npy
 
 nick_model.hdf5
