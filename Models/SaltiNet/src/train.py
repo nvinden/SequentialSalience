@@ -96,7 +96,7 @@ def train_salti():
     if nick_train_staring_pos == 249:
         nick_train_staring_pos = 13
 
-    print("STARING POSITION ", nick_train_staring_pos[0])
+    print("STARING POSITION ", nick_train_staring_pos)
 
     #number of saved_states
     for i in range(nick_train_staring_pos, 21):
