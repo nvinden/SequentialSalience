@@ -112,7 +112,6 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     filepath = "nick_model.h5"
     ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only = False)
 
-    exit()
     model.fit(x=stimuli, y=sal_volumes, batch_size=16, epochs=100, verbose=1, callbacks=[ckpt])
 
     print(model.summary())
