@@ -65,7 +65,7 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
         for i in range(12):
             curr_sal_vol[i] /= np.amax(curr_sal_vol[i])
         
-        print(index)
+        print("Creating Sal Volumes: ", i)
         sal_volumes.append(curr_sal_vol)
 
         count += 1
@@ -101,7 +101,7 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     #creating inputs
     out = list()
     for i in range(stimuli.shape[0]):
-        print(i)
+        print("Resizing:", i)
         image_now = cv2.resize(stimuli[i], (600, 300), interpolation = cv2.INTER_CUBIC)
         out.append(image_now)
     stimuli = np.array(out)
