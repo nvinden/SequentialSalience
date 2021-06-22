@@ -88,8 +88,15 @@ def train_salti():
 
     model = get_nick_model()
 
+    if os.path.isfile("nick_train_index.npy"):
+        nick_train_staring_pos = np.load("nick_train_index.npy")
+    else:
+        nick_train_staring_pos = 1
+
+    print("STARING POSITION ", nick_train_staring_pos)
+
     #number of saved_states
-    for i in range(1, 21):
+    for i in range(nick_train_staring_pos, 21):
         start = (i - 1) * 250
         end = i * 250
         print(i, start, end)
@@ -115,3 +122,6 @@ def train_salti():
         ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only = False)
 
         model.fit(x=stimuli, y=sal_volumes, batch_size=16, epochs=25, verbose=1, callbacks=[ckpt])
+
+        np.save("nick_train_index.npy", np.array([i]))
+
