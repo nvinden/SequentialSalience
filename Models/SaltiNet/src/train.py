@@ -89,11 +89,14 @@ def train_salti():
     model = get_nick_model()
 
     if os.path.isfile("nick_train_index.npy"):
-        nick_train_staring_pos = np.load("nick_train_index.npy")
+        nick_train_staring_pos = np.load("nick_train_index.npy")[0]
     else:
         nick_train_staring_pos = 1
 
-    print("STARING POSITION ", nick_train_staring_pos)
+    if nick_train_staring_pos == 249:
+        nick_train_staring_pos = 13
+
+    print("STARING POSITION ", nick_train_staring_pos[0])
 
     #number of saved_states
     for i in range(nick_train_staring_pos, 21):
