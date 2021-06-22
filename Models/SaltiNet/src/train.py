@@ -97,6 +97,8 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     '''
     #creating outputs
     sal_volumes = _load_sal_vals(1)#_create_sal_volumes(fixations, dataset, from_save = False)
+    print(sal_volumes)
+    print(sal_volumes.shape)
 
     #creating inputs
     out = list()
