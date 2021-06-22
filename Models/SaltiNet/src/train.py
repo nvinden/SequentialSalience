@@ -96,7 +96,7 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     out = model.predict(inp, batch_size = 1)
     '''
     #creating outputs
-    sal_volumes = _create_sal_volumes(fixations, dataset, from_save = False)
+    sal_volumes = _load_sal_vals(1)#_create_sal_volumes(fixations, dataset, from_save = False)
 
     #creating inputs
     out = list()
