@@ -70,14 +70,13 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
 
         count += 1
 
-        if to_save and count % 100 == 0 and index != start:
-            number = int(math.ceil(index / 500))
+        if to_save and count % 250 == 0 and index != start:
+            number = int(math.ceil(index / 250))
             save_val = np.array(sal_volumes)
             print(f"SAL VOL LENGTH: {save_val.shape}")
             np.save(f"sal_volumes_{number}.npy", save_val)
-            if count % 500 == 0:
-                sal_volumes = list()
-                count = 0
+            sal_volumes = list()
+            count = 0
     
     sal_volumes = np.array(sal_volumes)
 
@@ -97,7 +96,7 @@ def train_salti(fixations, stimuli, dataset = "SALICON"):
     out = model.predict(inp, batch_size = 1)
     '''
     #creating outputs
-    sal_volumes = _load_sal_vals(1)#_create_sal_volumes(fixations, dataset, from_save = False)
+    sal_volumes = _create_sal_volumes(fixations, dataset, from_save = False)
 
     #creating inputs
     out = list()
