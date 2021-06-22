@@ -27,8 +27,6 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
-    dataset.load("SALICON")
 
     '''
     longest = 0
@@ -48,8 +46,6 @@ def main():
     print(longest)
     '''
 
-    seq = dataset.get("sequence", index = range(0, 250))
-    stim = dataset.get("stimuli", index = range(0, 250))
 
     '''
     seq = dataset.get("sequence")
@@ -60,7 +56,7 @@ def main():
     fix_dw = dataset.get("fixation_dw")
     '''
 
-    train_salti(seq, stim, "SALICON")
+    train_salti()
 
     '''
     seq_dataset_list = ("OSIE", "SUN09", "LOWRES", "KTH")

@@ -5,6 +5,7 @@ import numpy as np
 from scipy import ndimage
 from PIL import Image
 import cv2
+import tensorflow as tf
 import keras
 import math
 
@@ -21,7 +22,7 @@ _360_IMAGE_SHAPE = [300, 600]
 
 start = 0
 
-def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
+def _create_sal_volumes(fixations, save_index, dataset, from_save=True, to_save=True):
     if dataset in ["OSIE", ]:
         step_time = _LONGEST_OSIE_SCANPATH_DURATION / _QUANTIZATION_SLICES
     elif dataset in ["SALICON", ]:
@@ -30,8 +31,6 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
     count = 0
     sal_volumes = list()
     for index, image in enumerate(fixations):
-        if index < start:
-            continue
         curr_sal_vol = np.zeros([12, 300, 600], dtype=np.float32)
         for fix in image:
             if fix[-1, 2] > _LONGEST_SALICON_SCANPATH_DURATION or fix[-1, 2] == float("inf"):
@@ -65,20 +64,12 @@ def _create_sal_volumes(fixations, dataset, from_save=True, to_save=True):
         for i in range(12):
             curr_sal_vol[i] /= np.amax(curr_sal_vol[i])
         
-        print("Creating Sal Volumes: ", i)
+        print("Creating Sal Volumes: ", save_index, index)
         sal_volumes.append(curr_sal_vol)
 
-        count += 1
-
-        if to_save and count % 250 == 0 and index != start:
-            number = int(math.ceil(index / 250))
-            save_val = np.array(sal_volumes)
-            print(f"SAL VOL LENGTH: {save_val.shape}")
-            np.save(f"sal_volumes_{number}.npy", save_val)
-            sal_volumes = list()
-            count = 0
-    
     sal_volumes = np.array(sal_volumes)
+    print(f"SAL VOL LENGTH: {sal_volumes.shape}")
+    np.save(f"sal_volumes_{save_index}.npy", sal_volumes)
 
     return sal_volumes
 
@@ -86,34 +77,44 @@ def _load_sal_vals(index):
     file_name = f"sal_volumes_{index}.npy"
     if os.path.isfile(file_name):
         return np.load(file_name)
+    return None
 
-def train_salti(fixations, stimuli, dataset = "SALICON"):
+def train_salti():
+    import Eval.dataset as ds
+    import config as cfg
+
+    dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
+    dataset.load("SALICON")
+
     model = get_nick_model()
 
-    #inp, image_size = load_image("Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/Stimuli/P12_10000x5000.jpg")
-    '''
-    inp = np.zeros([1, 3, 300, 600])
-    out = model.predict(inp, batch_size = 1)
-    '''
-    #creating outputs
-    sal_volumes = _load_sal_vals(1)#_create_sal_volumes(fixations, dataset, from_save = False)
-    print(sal_volumes)
-    print(sal_volumes.shape)
+    #number of saved_states
+    for i in range(1, 21):
+        start = (i - 1) * 250
+        end = i * 250
+        print(i, start, end)
+        sal_volumes = _load_sal_vals(i)
+        if sal_volumes is None:
+            seq = dataset.get("sequence", index = range(start, end))
+            sal_volumes = _create_sal_volumes(seq, i, "SALICON")
+        stimuli = dataset.get("stimuli", index = range(start,end))
+        print(stimuli.shape)
+        print(sal_volumes.shape)
 
-    #creating inputs
-    out = list()
-    for i in range(stimuli.shape[0]):
-        print("Resizing:", i)
-        image_now = cv2.resize(stimuli[i], (600, 300), interpolation = cv2.INTER_CUBIC)
-        out.append(image_now)
-    stimuli = np.array(out)
-    stimuli = np.array(stimuli, dtype=np.float32) / 255.0
-    stimuli = np.moveaxis(stimuli, -1, 1)
+        #creating inputs
+        out = list()
+        for i in range(stimuli.shape[0]):
+            print("Resizing:", i)
+            image_now = cv2.resize(stimuli[i], (600, 300), interpolation = cv2.INTER_CUBIC)
+            out.append(image_now)
+        stimuli = np.array(out)
+        stimuli = np.array(stimuli, dtype=np.float32) / 255.0
+        stimuli = np.moveaxis(stimuli, -1, 1)
 
-    filepath = "nick_model.h5"
-    ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only = False)
+        filepath = "nick_model.h5"
+        ckpt = keras.callbacks.ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only = False)
 
-    model.fit(x=stimuli, y=sal_volumes, batch_size=16, epochs=100, verbose=1, callbacks=[ckpt])
+        model.fit(x=stimuli, y=sal_volumes, batch_size=16, epochs=1, verbose=1, callbacks=[ckpt])
 
-    print(model.summary())
-    print(sal_volumes.shape) 
+        print(model.summary())
+        print(sal_volumes.shape) 

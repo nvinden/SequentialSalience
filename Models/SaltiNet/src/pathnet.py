@@ -5,7 +5,7 @@ __version__ = "1.0"
 
 import keras
 #keras.backend.set_image_dim_ordering("th")
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 
 from scipy import ndimage
 import scipy.io as io
@@ -26,7 +26,9 @@ def get_model():
 	return model
 
 def get_nick_model():
-	if os.path.isfile("nick_model_config.json"):
+	if os.path.isfile("nick_model.h5"):
+		model = load_model("nick_model.h5")
+	elif os.path.isfile("nick_model_config.json"):
 		#model = load_model('nick_model.h5')
 		json_file = open("nick_model_config.json")
 		json_config = json.load(json_file)
