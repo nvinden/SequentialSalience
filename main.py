@@ -39,7 +39,7 @@ def main():
         seq = dataset.get("sequence")
         stim = dataset.get("stimuli")
         stim_names = dataset.get("stimuli_path")
-        utils.test_trained_saltinet(seq, stim, stim_names, ds_name)
+        utils.test_trained_saltinet(seq, stim, stim_names, ds_name, train_file="Models/SaltiNet/src/pathnet_model_v2.h5", trained=False)
 
     '''
     seq = dataset.get("sequence", index = range(10))
