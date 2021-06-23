@@ -26,7 +26,9 @@ def get_model():
 	return model
 
 def get_nick_model():
-	if os.path.isfile("nick_model_config.json"):
+	if os.path.isfile("nick_model.h5"):
+		model = load_model('nick_model.h5')
+	elif os.path.isfile("nick_model_config.json"):
 		#model = load_model('nick_model.h5')
 		json_file = open("nick_model_config.json")
 		json_config = json.load(json_file)
