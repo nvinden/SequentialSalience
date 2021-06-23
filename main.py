@@ -28,7 +28,7 @@ warnings.filterwarnings('ignore')
 
 
 def main():
-    seq_dataset_list = ("OSIE", "SUN09", "KTH", )
+    seq_dataset_list = ("SUN09", "KTH", )
     dataset = ds.SaliencyDataset(config=cfg.DATASET_CONFIG)
     
     for ds_name in seq_dataset_list:
@@ -36,9 +36,9 @@ def main():
 
         print(dataset.data_type)
 
-        seq = dataset.get("sequence", index = range(250))
-        stim = dataset.get("stimuli", index = range(250))
-        stim_names = dataset.get("stimuli_path", index = range(250))
+        seq = dataset.get("sequence")
+        stim = dataset.get("stimuli")
+        stim_names = dataset.get("stimuli_path")
         utils.test_trained_saltinet(seq, stim, stim_names, ds_name)
 
     '''
