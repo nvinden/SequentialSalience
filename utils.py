@@ -774,6 +774,7 @@ def test_trained_saltinet(seq, stim, stim_names, ds_name, train_file="nick_model
   from Models.SaltiNet.src.pathnet import get_nick_model, sample_volume
 
   stim_shape = stim.shape[1:]
+  print(stim_shape)
 
   if trained:
     directory = "saltinet_trained"
