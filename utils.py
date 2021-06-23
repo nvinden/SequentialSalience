@@ -83,7 +83,7 @@ def save_json(results, test, index, predicted, actual_list, pic_name, pic_shape,
   out = {}
 
   #creating pathname for the json file
-  if model_name in ["IttiKoch", "CLE"]:
+  if model_name in ["IttiKoch", "CLE", "saltinet", "saltinet_trained"]:
     path = os.path.join(results_folder, model_name, test + "_"  + str(predicted.shape[0]) + "_" + pic_name + ".json")
   else:
     path = os.path.join(results_folder, model_name, test + "_" + pic_name + ".json")
