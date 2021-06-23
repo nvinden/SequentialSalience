@@ -36,9 +36,9 @@ def main():
 
         print(dataset.data_type)
 
-        seq = dataset.get("sequence")
-        stim = dataset.get("stimuli")
-        stim_names = dataset.get("stimuli_path")
+        seq = dataset.get("sequence", index = range(250))
+        stim = dataset.get("stimuli", index = range(250))
+        stim_names = dataset.get("stimuli_path", index = range(250))
         utils.test_trained_saltinet(seq, stim, stim_names, ds_name)
 
     '''
