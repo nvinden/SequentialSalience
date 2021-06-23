@@ -1,12 +1,15 @@
 import os
 
-import torch
+#import torch
 
 import Eval.dataset as ds
 import Eval.metrics.metrics as met
 
+'''
+
 from Models import *
 from Models.Eymol import eymol
+'''
 
 '''
 
@@ -451,6 +454,7 @@ def _get_best_from_fixation(pred, real_list, shape, range_of_fixations):
     
   return np.array(best_results, dtype=np.float64)
 
+'''
 def test_saltinet():
   np.set_printoptions(suppress=True) 
   saltinet_pred_dir = "Results/SaltiNet_csv"
@@ -512,10 +516,12 @@ def test_saltinet():
     print(best_2_best_100)
   
     save_json(first_2_best_15, "COCOSearch-18", csv_int, first_fix, real_list[:15], csv_name, shape, "SaltiNet", first_2_best_100=first_2_best_100[0][1], best_2_best_15=best_2_best_15[0][1], best_2_best_100=best_2_best_100[0][1])
-
+'''
 
   
 def create_pathgan_csv():
+  import Models.PathGAN.src.predict as p_predict
+
   pathgan_dataset_route = "Datasets/ftp.ivc.polytech.univ-nantes.fr/Images/Stimuli"
   pathgan_results_route = "Results/PathGAN_csv/"
 
@@ -708,21 +714,49 @@ def test_trained_pathgan(seq, stim, stim_names, ds_name):
   from keras.preprocessing import image
   import keras
   from Models.PathGAN.src.utils import load_image
+  from keras.optimizers import RMSprop
 
-  opt = keras.optimizers.RMSprop(lr=0.05, rho=0.9, epsilon=1e-08, decay=0.0)
+  loss_weights            = [1., 0.05] #0.05
+  adversarial_iteration   = 2
+  batch_size              = 25 #100
+  mini_batch_size         = 800 #4000
+  G                       = 1
+  epochs                  = 200
+  n_hidden_gen            = 1000
+  lr                      = 1e-4
+  content_loss            = 'mse'
+  lstm_activation         = 'tanh'
+  dropout                 = 0.1
+  dataset_path            = '/root/sharedfolder/predict_scanpaths/finetune_saltinet_isun/input/salient360_EVAL_noTime.hdf5'
+  model360                = 'false'
+  weights_generator       =  '-' #'Models/PathGAN/weights/generator_single_weights.h5'
+  opt = RMSprop(lr=lr, rho=0.9, epsilon=1e-08, decay=0.0)
 
-  # Get the model
   params = {
-      'n_hidden_gen':1000,
-      'lstm_activation':'tanh',
-      'dropout':0.1,
-      'optimizer':opt,
-      'loss':'mse',
-      'weights':"Models/PathGAN/weights/generator_single_weights.h5",
-      'G':1
+    'n_hidden_gen':n_hidden_gen,
+    'lstm_activation':lstm_activation,
+    'dropout':dropout,
+    'optimizer':opt,
+    'loss': content_loss,
+    'weights':weights_generator,
+    'G':G
   }
+
   _, gen = models.generator(**params)
-  gen.trainable = False
+  dec = models.decoder(lstm_activation=lstm_activation, optimizer=opt, weights="-")
+
+  params_gan = {
+    'content_loss': content_loss,
+    'optimizer': opt,
+    'loss_weights': loss_weights,
+    'generator': gen, 
+    'decoder': dec,
+    'G': G
+  }
+
+  _, gen_dec = models.gen_dec(**params_gan)
+
+  dec.load_weights('/home/nvinden/school/SequentialSalience/Models/PathGAN/weights/11-41-15-09-03-2018-10-generator(2).h5')
 
   for curr_image, curr_seq, curr_name in zip(stim, seq, stim_names):
     curr_image = cv2.resize(curr_image, dsize = (224, 224))
@@ -734,4 +768,38 @@ def test_trained_pathgan(seq, stim, stim_names, ds_name):
     print(out)
     
 
+def test_trained_saltinet(seq, stim, stim_names, ds_name, train_file="nick_model.h5", trained=True):
+  import tensorflow as tf
+  from tensorflow.keras.models import load_model
+  from Models.SaltiNet.src.pathnet import get_nick_model, sample_volume
 
+  stim_shape = stim.shape[1:]
+
+  if trained:
+    directory = "saltinet_trained"
+  else:
+    directory = "saltinet"
+
+  model = get_nick_model()
+  print(model.summary())
+
+  for curr_seq, curr_stim, curr_stim_name in zip(seq, stim, stim_names):
+    #creating inputs
+    image_now = cv2.resize(curr_stim, (600, 300), interpolation = cv2.INTER_CUBIC)
+    curr_stim = np.array(image_now, dtype=np.float32) / 255.0
+    curr_stim = np.expand_dims(curr_stim, axis = 0)
+    curr_stim = np.moveaxis(curr_stim, -1, 1)
+
+    out = model.predict(curr_stim, batch_size = 1)
+    out = out[0]
+
+    for num in [4, 8, 12]:
+      result = sample_volume(out, n_samples = num, size = (300, 600))
+      result = np.array(result, dtype=np.float32)
+      result = result[:, [1,0]]
+      result[:, 0] = result[:, 0] / 300 * stim_shape[0]
+      result[:, 1] = result[:, 1] / 600 * stim_shape[1]
+      fix_to_json(result, curr_seq, image = curr_stim, name = curr_stim_name, directory = directory, dataset = ds_name)
+    print(out.shape)
+
+  print(model.summary())

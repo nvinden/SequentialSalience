@@ -16,7 +16,7 @@ import warnings
 import config as cfg
 
 from Models.PathGAN.src.train import train
-
+ 
 from Models.SaltiNet.src.train import train_salti
 
 from Models.SaltiNet.src.pathnet import get_model
@@ -39,7 +39,7 @@ def main():
         seq = dataset.get("sequence")
         stim = dataset.get("stimuli")
         stim_names = dataset.get("stimuli_path")
-        utils.test_trained_pathgan(seq, stim, stim_names, ds_name)
+        utils.test_trained_saltinet(seq, stim, stim_names, ds_name)
 
     '''
     seq = dataset.get("sequence", index = range(10))
