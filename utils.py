@@ -795,6 +795,7 @@ def test_trained_saltinet(seq, stim, stim_names, ds_name, train_file="nick_model
 
     for num in [4, 8, 12]:
       result = sample_volume(out, n_samples = num, size = (300, 600))
+      print(result)
       result = np.array(result, dtype=np.float32)
       result = result[:, [1,0]]
       result[:, 0] = result[:, 0] / 300 * stim_shape[0]
