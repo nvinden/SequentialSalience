@@ -773,9 +773,6 @@ def test_trained_saltinet(seq, stim, stim_names, ds_name, train_file="nick_model
   from tensorflow.keras.models import load_model
   from Models.SaltiNet.src.pathnet import get_nick_model, sample_volume
 
-  stim_shape = stim.shape[1:]
-  print(stim_shape)
-
   if trained:
     directory = "saltinet_trained"
   else:
@@ -785,6 +782,7 @@ def test_trained_saltinet(seq, stim, stim_names, ds_name, train_file="nick_model
   print(model.summary())
 
   for curr_seq, curr_stim, curr_stim_name in zip(seq, stim, stim_names):
+    stim_shape = curr_stim.shape
     #creating inputs
     image_now = cv2.resize(curr_stim, (600, 300), interpolation = cv2.INTER_CUBIC)
     curr_stim = np.array(image_now, dtype=np.float32) / 255.0
